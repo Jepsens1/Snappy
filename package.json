@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "deploy-commands": "node --env-file=.env src/deploy-commands.js",
+    "dev": "nodemon --env-file=.env src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "eslint": "^9.37.0",
     "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "discord.js": "^14.23.2"
   }
 }
