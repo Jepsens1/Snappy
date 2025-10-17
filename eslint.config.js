@@ -5,6 +5,7 @@ module.exports = [
 	{
 		languageOptions: {
 			ecmaVersion: 'latest',
+			sourceType: 'commonjs',
 		},
 		rules: {
 			'arrow-spacing': ['warn', { before: true, after: true }],
