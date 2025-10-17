@@ -45,7 +45,10 @@ module.exports = {
 		const timestampOptions = { dateStyle: 'medium', timeStyle: 'short' };
 		const serverEmbed = new EmbedBuilder()
 			.setColor(0x0099ff)
-			.setTitle(response.serverName)
+			.setAuthor({
+				name: response.serverName,
+				iconURL: response.icon,
+			})
 			.setThumbnail(response.icon)
 			.setImage(response.banner)
 			.addFields(
