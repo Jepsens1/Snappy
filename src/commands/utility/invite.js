@@ -39,7 +39,17 @@ module.exports = {
 		const maxInvites = Number.parseInt(interaction.options.getString('maxuser'));
 		const isTemp = interaction.options.getBoolean('temp');
 		try {
-			const invite = await interaction.guild.invites.create(channel, { maxAge: expire, maxUses: maxInvites, temporary: isTemp });
+			const expireSeconds = Number(expire);
+			const invite = await interaction.guild.invites.create(channel, { maxAge: expireSeconds, maxUses: maxInvites, temporary: isTemp });
+
+			let expireText;
+			if (expireSeconds === 0) {
+				expireText = 'Never';
+			} else {
+				const expireTimestamp = Math.floor(Date.now() / 1000) + expireSeconds;
+				// Discord timestamp format – Shows time "in X hours"
+				expireText = `<t:${expireTimestamp}:R>`;
+			}
 			const inviteEmbed = new EmbedBuilder()
 				.setColor(0x1099ff)
 				.setAuthor(
@@ -48,7 +58,7 @@ module.exports = {
 				.setThumbnail(interaction.guild.iconURL())
 				.addFields(
 					{ name: 'Recap', value: `Created a invite for ${channel.toString()}
-						Expires: 1h\nMax invites: ${maxInvites}\nTemporary invite: ${isTemp ? 'Yes' : 'No'}` },
+						Expires: ${expireText}\nMax invites: ${maxInvites === 0 ? 'No Limit' : maxInvites}\nTemporary invite: ${isTemp ? 'Yes' : 'No'}` },
 					{ name: 'Invite Link', value: invite.toString() },
 				)
 				.setTimestamp();
