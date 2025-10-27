@@ -2,12 +2,25 @@ const js = require('@eslint/js');
 
 module.exports = [
 	js.configs.recommended,
+
+	require('eslint-config-prettier'),
+
 	{
-		languageOptions: {
-			ecmaVersion: 'latest',
-			sourceType: 'commonjs',
+		plugins: {
+			prettier: require('eslint-plugin-prettier'),
 		},
 		rules: {
+			'prettier/prettier': [
+				'warn',
+				{
+					tabWidth: 4,
+					useTabs: true,
+					singleQuote: true,
+					semi: true,
+					trailingComma: 'all',
+				},
+			],
+
 			'arrow-spacing': ['warn', { before: true, after: true }],
 			'brace-style': ['error', '1tbs', { allowSingleLine: true }],
 			'comma-dangle': ['error', 'always-multiline'],
@@ -26,7 +39,10 @@ module.exports = [
 			'no-inline-comments': 'error',
 			'no-lonely-if': 'error',
 			'no-multi-spaces': 'error',
-			'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 1, maxBOF: 0 }],
+			'no-multiple-empty-lines': [
+				'error',
+				{ max: 2, maxEOF: 1, maxBOF: 0 },
+			],
 			'no-shadow': ['error', { allow: ['err', 'resolve', 'reject'] }],
 			'no-trailing-spaces': ['error'],
 			'no-var': 'error',
