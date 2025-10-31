@@ -7,7 +7,7 @@ const {
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('roles')
-		.setDescription('display roles and permission for this guild')
+		.setDescription('display roles for this guild')
 		.setContexts(InteractionContextType.Guild),
 	/**
 	 * @param {import('discord.js').Interaction} interaction
