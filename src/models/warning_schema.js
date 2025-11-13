@@ -10,6 +10,10 @@ const warningSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		issuedBy: {
+			type: String,
+			required: true,
+		},
 		reason: {
 			type: String,
 			required: true,

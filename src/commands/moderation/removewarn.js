@@ -26,21 +26,28 @@ async function handleDeletion(interaction, member, warnings, query) {
 		.setLabel('Cancel')
 		.setStyle(ButtonStyle.Secondary);
 
+	const issuedByIds = [...new Set(warnings.map((w) => w.issuedBy))];
+	const issuedByMembers = await interaction.guild.members.fetch({
+		user: issuedByIds,
+	});
 	const selectMenu = new StringSelectMenuBuilder()
 		.setCustomId('delete_warning_select')
 		.setPlaceholder('Select a warning to remove')
 		.addOptions(
-			warnings.map((w, i) => ({
-				label: `Warning #${i + 1}: ${w.reason.substring(0, 50)}`,
-				description: `Created at: <t:${Math.floor(w.createdAt / 1000)}:R>`,
-				value: w._id.toString(),
-			})),
+			warnings.map((w, i) => {
+				const issuer = issuedByMembers.get(w.issuedBy);
+				return {
+					label: `Warning #${i + 1}: ${w.reason.substring(0, 50)}`,
+					description: `Issued by: ${issuer.displayName}`,
+					value: w._id.toString(),
+				};
+			}),
 		);
 	const embed = new EmbedBuilder()
 		.setColor(0xff0000)
 		.setTitle(`Delete warnings for ${member.user.tag}`)
 		.setDescription(
-			`Select either one warning to delete, or press "Delete all".\n\n**Active warnings:** ${warnings.length}`,
+			`Select either one warning to delete, or press "Delete all warnings".\n\n**Active warnings:** ${warnings.length}`,
 		)
 		.setThumbnail(member.user.displayAvatarURL());
 	const response = await interaction.reply({
@@ -50,6 +57,7 @@ async function handleDeletion(interaction, member, warnings, query) {
 			new ActionRowBuilder().addComponents(deleteAllButton),
 			new ActionRowBuilder().addComponents(cancelButton),
 		],
+		flags: MessageFlags.Ephemeral,
 		withResponse: true,
 	});
 	const collectorFilter = (i) => i.user.id === interaction.user.id;
@@ -66,7 +74,6 @@ async function handleDeletion(interaction, member, warnings, query) {
 			if (i.isStringSelectMenu()) {
 				const warningId = i.values[0];
 				await Warning.deleteOne({ _id: warningId });
-
 				await i.update({
 					content: 'Warning deleted!',
 					components: [],
@@ -81,6 +88,9 @@ async function handleDeletion(interaction, member, warnings, query) {
 					components: [],
 					embeds: [],
 				});
+				await interaction.channel.send(
+					`${member.toString()} i have some great news for you. ${interaction.user.toString()} has decided to remove all your warnings in this guild.\nIsn't that great :smiley:`,
+				);
 			}
 
 			if (i.isButton() && i.customId === 'cancel') {

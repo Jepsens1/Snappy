@@ -10,16 +10,18 @@ const {
 const Warning = require('../../models/warning_schema');
 
 /**
+ * @param {string} issuerId
  * @param {string} userId
  * @param {string} reason
  * @param {string} guildId
  * @param {number} duration
  */
-async function createWarning(userId, guildId, reason, duration) {
+async function createWarning(userId, issuerId, guildId, reason, duration) {
 	const warning = new Warning({
 		userId: userId,
 		guildId: guildId,
 		reason: reason,
+		issuedBy: issuerId,
 		expiresAt: new Date(Date.now() + duration * 1000),
 	});
 	await warning.save();
@@ -81,7 +83,13 @@ async function confirmNewWarning(
 				time: 60_000,
 			});
 		if (confirmation.customId === 'confirm') {
-			await createWarning(member.user.id, guildId, reason, duration);
+			await createWarning(
+				member.user.id,
+				interaction.user.id,
+				guildId,
+				reason,
+				duration,
+			);
 			await confirmation.update({
 				content: `${member.user.tag} has been given a new warning reason: ${reason}`,
 				components: [],
@@ -169,6 +177,7 @@ module.exports = {
 			} else {
 				await createWarning(
 					member.user.id,
+					interaction.user.id,
 					interaction.guildId,
 					reason,
 					duration,
