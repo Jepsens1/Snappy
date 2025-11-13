@@ -58,7 +58,7 @@ async function confirmNewWarning(
 	});
 	const confirm = new ButtonBuilder()
 		.setCustomId('confirm')
-		.setLabel('Confirm Ban')
+		.setLabel('Confirm new warning')
 		.setStyle(ButtonStyle.Danger);
 
 	const cancel = new ButtonBuilder()
