@@ -1,25 +1,29 @@
 const { model, Schema } = require('mongoose');
 
-const warningSchema = new Schema({
-	userId: {
-		type: String,
-		required: true,
+const warningSchema = new Schema(
+	{
+		userId: {
+			type: String,
+			required: true,
+		},
+		guildId: {
+			type: String,
+			required: true,
+		},
+		reason: {
+			type: String,
+			required: true,
+		},
+		expiresAt: {
+			type: Date,
+			required: true,
+		},
 	},
-	guildId: {
-		type: String,
-		required: true,
+	{
+		timestamps: true,
 	},
-	reason: {
-		type: String,
-		required: true,
-	},
-	active: {
-		type: Boolean,
-	},
-	expiresInSeconds: {
-		type: Number,
-		required: true,
-	},
-});
+);
 
+// Activate TTL, to delete warnings that are expired
+warningSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 module.exports = model('Warning', warningSchema);

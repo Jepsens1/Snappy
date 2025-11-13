@@ -5,18 +5,102 @@ const {
 	ButtonBuilder,
 	ButtonStyle,
 	ActionRowBuilder,
+	EmbedBuilder,
 } = require('discord.js');
 const Warning = require('../../models/warning_schema');
 
+/**
+ * @param {string} userId
+ * @param {string} reason
+ * @param {string} guildId
+ * @param {number} duration
+ */
 async function createWarning(userId, guildId, reason, duration) {
 	const warning = new Warning({
 		userId: userId,
 		guildId: guildId,
 		reason: reason,
-		expiresInSeconds: duration,
-		active: true,
+		expiresAt: new Date(Date.now() + duration * 1000),
 	});
 	await warning.save();
+}
+
+/**
+ * @param {string} reason
+ * @param {string} guildId
+ * @param {number} duration
+ * @param {import('discord.js').Interaction} interaction
+ * @param {import('discord.js').GuildMember} member
+ */
+async function confirmNewWarning(
+	warnings,
+	interaction,
+	member,
+	guildId,
+	reason,
+	duration,
+) {
+	const embed = new EmbedBuilder()
+		.setColor(0xffa500)
+		.setTitle(`Warnings for ${member.user.tag}`)
+		.setThumbnail(member.user.displayAvatarURL())
+		.setTimestamp();
+
+	warnings.forEach((w, i) => {
+		const created = `<t:${Math.floor(w.createdAt / 1000)}:f>`;
+		const expires = `<t:${Math.floor(w.expiresAt / 1000)}:R>`;
+
+		embed.addFields({
+			name: `Warning #${i + 1}: ${w.reason}`,
+			value: `**Given** ${created}\n**Expires** ${expires}`,
+			inline: false,
+		});
+	});
+	const confirm = new ButtonBuilder()
+		.setCustomId('confirm')
+		.setLabel('Confirm Ban')
+		.setStyle(ButtonStyle.Danger);
+
+	const cancel = new ButtonBuilder()
+		.setCustomId('cancel')
+		.setLabel('Cancel')
+		.setStyle(ButtonStyle.Secondary);
+
+	const row = new ActionRowBuilder().addComponents(cancel, confirm);
+	const response = await interaction.reply({
+		components: [row],
+		embeds: [embed],
+		withResponse: true,
+	});
+	const collectorFilter = (i) => i.user.id === interaction.user.id;
+
+	try {
+		const confirmation =
+			await response.resource.message.awaitMessageComponent({
+				filter: collectorFilter,
+				time: 60_000,
+			});
+		if (confirmation.customId === 'confirm') {
+			await createWarning(member.user.id, guildId, reason, duration);
+			await confirmation.update({
+				content: `${member.user.tag} has been given a new warning reason: ${reason}`,
+				components: [],
+				embeds: [],
+			});
+		} else if (confirmation.customId === 'cancel') {
+			await confirmation.update({
+				content: 'Action cancelled',
+				components: [],
+				embeds: [],
+			});
+		}
+	} catch {
+		await interaction.editReply({
+			content: 'Confirmation not received within 1 minute, cancelling',
+			components: [],
+			embeds: [],
+		});
+	}
 }
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -61,71 +145,27 @@ module.exports = {
 		const duration = interaction.options.getInteger('duration');
 
 		if (member.user.bot) {
-			await interaction.editReply('You cannot warn a bot');
+			await interaction.reply('You cannot warn a bot');
 			return;
 		}
 		try {
 			// Check if member already has a warning
-			const warningExist = await Warning.findOne({
+			const warnings = await Warning.find({
 				userId: member.user.id,
 				guildId: interaction.guildId,
+				expiresAt: { $gt: new Date() },
 			});
 
-			if (warningExist) {
+			if (warnings.length > 0) {
 				// Ask author if a new warning should be issued
-
-				const confirm = new ButtonBuilder()
-					.setCustomId('confirm')
-					.setLabel('Confirm Ban')
-					.setStyle(ButtonStyle.Danger);
-
-				const cancel = new ButtonBuilder()
-					.setCustomId('cancel')
-					.setLabel('Cancel')
-					.setStyle(ButtonStyle.Secondary);
-
-				const row = new ActionRowBuilder().addComponents(
-					cancel,
-					confirm,
-				);
-				const response = await interaction.reply({
-					content: `${member.user.tag} has already been given a warning. Are you sure you want to issue a new warning?`,
-					components: [row],
-					withResponse: true,
-				});
-				const collectorFilter = (i) =>
-					i.user.id === interaction.user.id;
-
-				try {
-					const confirmation =
-						await response.resource.message.awaitMessageComponent({
-							filter: collectorFilter,
-							time: 60_000,
-						});
-					if (confirmation.customId === 'confirm') {
-						await createWarning(
-							member.user.id,
-							interaction.guildId,
-							reason,
-							duration,
-						);
-						await confirmation.update({
-							content: `${member.user.tag} has been given a new warning reason: ${reason}`,
-							components: [],
-						});
-					} else if (confirmation.customId === 'cancel') {
-						await confirmation.update({
-							content: 'Action cancelled',
-							components: [],
-						});
-					}
-				} catch {
-					await interaction.editReply({
-						content:
-							'Confirmation not received within 1 minute, cancelling',
-						components: [],
-					});
-				}
+				await confirmNewWarning(
+					warnings,
+					interaction,
+					member,
+					interaction.guildId,
+					reason,
+					duration,
+				).catch(console.error);
 			} else {
 				await createWarning(
 					member.user.id,
