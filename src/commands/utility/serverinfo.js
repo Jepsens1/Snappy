@@ -108,4 +108,3 @@ module.exports = {
     await interaction.editReply({ embeds: [serverEmbed] });
   },
 };
-

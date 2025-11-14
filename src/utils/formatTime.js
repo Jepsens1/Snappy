@@ -14,4 +14,3 @@ function formatTime(ms) {
 }
 
 module.exports = formatTime;
-

@@ -8,6 +8,8 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 
+const hello = "hello";
+
 const foldersPath = path.join(__dirname, "commands");
 // Gets all subdirectories inside commands folder
 const commandFolders = fs.readdirSync(foldersPath);
