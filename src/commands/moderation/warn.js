@@ -6,9 +6,10 @@ const {
   ButtonStyle,
   ActionRowBuilder,
   EmbedBuilder,
+  MessageFlags,
 } = require("discord.js");
 const Warning = require("../../models/warning_schema");
-
+const { handlePermissionRights } = require("../../utils/checkPermissions");
 /**
  * @param {string} issuerId
  * @param {string} userId
@@ -152,9 +153,28 @@ module.exports = {
     const duration = interaction.options.getInteger("duration");
 
     if (member.user.bot) {
-      await interaction.reply("You cannot warn a bot");
+      await interaction.reply({
+        content: "You cannot warn a bot",
+        flags: MessageFlags.Ephemeral,
+      });
       return;
     }
+    if (member.user.id === interaction.guild.ownerId) {
+      await interaction.reply({
+        content:
+          "You cannot warn the provided member, cause it's the owner of this guild",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+    // Check is interaction member has sufficient role to execute this command
+    const hasSufficientRights = await handlePermissionRights(
+      interaction,
+      member,
+      "warn",
+    );
+    if (!hasSufficientRights) return false;
+
     try {
       // Check if member already has a warning
       const warnings = await Warning.find({
@@ -181,7 +201,13 @@ module.exports = {
           reason,
           duration,
         );
-        await interaction.reply("Created a new warning");
+        await interaction.reply({
+          content: `A warning was created for ${member.user.tag}`,
+          flags: MessageFlags.Ephemeral,
+        });
+        await interaction.channel.send(
+          `${member.user.toString()} you have just been given a warning for: ${reason}. The warning was issued by: ${interaction.user.toString()}`,
+        );
       }
     } catch (error) {
       console.error("Error happened during warn command", error);

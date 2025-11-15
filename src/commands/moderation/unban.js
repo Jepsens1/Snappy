@@ -30,6 +30,7 @@ module.exports = {
     const userId = interaction.options.getString("member");
     const reason =
       interaction.options.getString("reason") ?? "No reason provided";
+
     try {
       const result = await interaction.guild.members
         .unban(userId, reason)

@@ -6,11 +6,7 @@ const {
   ButtonBuilder,
   ButtonStyle,
 } = require("discord.js");
-const {
-  doesHaveSufficientPermission,
-  REASONS,
-  PermissionRequest,
-} = require("../../utils/checkPermissions");
+const { handlePermissionRights } = require("../../utils/checkPermissions");
 
 const CONFIRM = "confirm";
 const CANCEL = "cancel";
@@ -46,39 +42,12 @@ module.exports = {
       );
       return;
     }
-    // If the request user is the owner then no need to check hiearchy
-    if (!interaction.member.user.id == interaction.guild.ownerId) {
-      const targetUserRolePosition = target.guild.roles.highest.position;
-      const requestUserRolePosition = interaction.member.roles.highest.position;
-      const botRolePosition =
-        interaction.guild.members.me.roles.highest.position;
-      const result = doesHaveSufficientPermission(
-        new PermissionRequest(
-          targetUserRolePosition,
-          requestUserRolePosition,
-          botRolePosition,
-        ),
-      );
-      if (!result.allowed) {
-        if (result.reason === REASONS.TARGET_HIGHER_OR_EQUAL_REQUEST) {
-          await interaction.reply({
-            content:
-              "You can't kick that user because they have same/higher role than you",
-            flags: MessageFlags.Ephemeral,
-          });
-          return;
-        }
-        if (result.reason == REASONS.TARGET_HIGHER_OR_EQUAL_BOT) {
-          await interaction.reply({
-            content:
-              "I can't kick that user because they have same/higher role as me.",
-            flags: MessageFlags.Ephemeral,
-          });
-          return;
-        }
-      }
-    }
-
+    const hasSufficientRights = handlePermissionRights(
+      interaction,
+      target,
+      "kick",
+    );
+    if (!hasSufficientRights) return;
     const confirm = new ButtonBuilder()
       .setCustomId(CONFIRM)
       .setLabel("Confirm Kick")

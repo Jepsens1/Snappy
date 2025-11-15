@@ -4,11 +4,7 @@ const {
   InteractionContextType,
   MessageFlags,
 } = require("discord.js");
-const {
-  REASONS,
-  PermissionRequest,
-  doesHaveSufficientPermission,
-} = require("../../utils/checkPermissions");
+const { handlePermissionRights } = require("../../utils/checkPermissions");
 const data = new SlashCommandBuilder()
   .setName("timeout")
   .setDescription("Timeout a user")
@@ -64,38 +60,13 @@ module.exports = {
       );
       return;
     }
-    // If the request user is the owner then no need to check hiearchy
-    if (!interaction.member.user.id == interaction.guild.ownerId) {
-      const targetUserRolePosition = target.guild.roles.highest.position;
-      const requestUserRolePosition = interaction.member.roles.highest.position;
-      const botRolePosition =
-        interaction.guild.members.me.roles.highest.position;
-      const result = doesHaveSufficientPermission(
-        new PermissionRequest(
-          targetUserRolePosition,
-          requestUserRolePosition,
-          botRolePosition,
-        ),
-      );
-      if (!result.allowed) {
-        if (result.reason === REASONS.TARGET_HIGHER_OR_EQUAL_REQUEST) {
-          await interaction.reply({
-            content:
-              "You can't kick that user because they have same/higher role than you",
-            flags: MessageFlags.Ephemeral,
-          });
-          return;
-        }
-        if (result.reason == REASONS.TARGET_HIGHER_OR_EQUAL_BOT) {
-          await interaction.reply({
-            content:
-              "I can't timeout that user because they have same/higher role as me.",
-            flags: MessageFlags.Ephemeral,
-          });
-          return;
-        }
-      }
-    }
+    const hasSufficientRights = await handlePermissionRights(
+      interaction,
+      target,
+      "timeout",
+    );
+    if (!hasSufficientRights) return;
+
     try {
       const text = target.isCommunicationDisabled()
         ? `${target.user.tag} timeout has been updated to ${duration}, reason: ${reason}`

@@ -10,7 +10,7 @@ const {
   StringSelectMenuBuilder,
 } = require("discord.js");
 const Warning = require("../../models/warning_schema");
-
+const { handlePermissionRights } = require("../../utils/checkPermissions");
 /**
  * @param {import('discord.js').Interaction} interaction
  * @param {import('discord.js').GuildMember} member
@@ -143,6 +143,12 @@ module.exports = {
       });
       return;
     }
+    const hasSufficientRights = await handlePermissionRights(
+      interaction,
+      member,
+      "removewarn",
+    );
+    if (!hasSufficientRights) return false;
     try {
       const query = {
         userId: member.user.id,
