@@ -16,9 +16,8 @@ module.exports = {
     await interaction.deferReply();
     const serverCount = (await interaction.client.guilds.fetch()).size;
     const uptime = formatTime(interaction.client.uptime);
-    const developerAccount = await interaction.client.users.fetch(
-      process.env.DEV_ACCOUNT,
-    );
+    const developerAccount =
+      await interaction.client.users.fetch("220901252777639936");
     const aboutEmbed = new EmbedBuilder()
       .setColor(0x9900ff)
       .setAuthor({
