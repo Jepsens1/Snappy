@@ -59,7 +59,7 @@ npm run dev
 ## 📖 Usage
 
 Available commands:
-- `/help` - **In progress**
+- `/help` - ***In progress***
 - `/about` - Shows Bot-version, Server count and Uptime
 - `/uptime` - Display in date format how long the bot has been online
 - `/invite` - Creates a invite link to Discord Guild. Option to select expire time, User limit and if the invite link is temporary
@@ -79,17 +79,17 @@ Available commands:
 - `/fact` - Display today's fact
 - `/meme ` - Display a random meme
 - `/coinflip` - Flip a coin
-- `/lol build` - Get build stats for a champion for different roles **In Progress**
-- `/lol counters` - Get counters for a champion **In Progress**
-- `/lol stats` - Get essential stats for a player **In Progress**
-- `/lol rank` - Get rank for a player **In Progress**
-- `/cs2 steamprofile` - Get essential stats for player **In Progress**
-- `/cs2 faceit` - Get essential stats for a faceit player **In Progress**
-- `/remind` - Create a reminder for a Guild
-- `/poll` - Create a interaction poll
-- `/autorole` - Select a role to assign new Guild Members a role automatically when joining the Guild
-- `/removeautorole` - Disables automatically assigning new Guild Members a role when joining a Guild
-- `/welcome` - Write a text that the bot should send to new Members when joining the Guild
+- `/lol build` - Get build stats for a champion for different roles ***In Progress***
+- `/lol counters` - Get counters for a champion ***In Progress***
+- `/lol stats` - Get essential stats for a player ***In Progress***
+- `/lol rank` - Get rank for a player ***In Progress***
+- `/cs2 steamprofile` - Get essential stats for player ***In Progress***
+- `/cs2 faceit` - Get essential stats for a faceit player ***In Progress***
+- `/remind` - Create a reminder for a Guild ***In Progress***
+- `/poll` - Create a interaction poll ***In Progress***
+- `/autorole` - Select a role to assign new Guild Members a role automatically when joining the Guild ***In Progress***
+- `/removeautorole` - Disables automatically assigning new Guild Members a role when joining a Guild ***In Progress***
+- `/welcome` - Write a text that the bot should send to new Members when joining the Guild ***In Progress***
 
 ## Examples
 
