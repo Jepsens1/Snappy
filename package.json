@@ -5,6 +5,7 @@
   "scripts": {
     "deploy-commands": "node --env-file=.env src/deploy-commands.js",
     "dev": "nodemon --env-file=.env src/index.js",
+    "start": "node --env-file=.env src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
