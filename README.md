@@ -78,7 +78,7 @@ Available commands:
 - `/roll` - Rolles a dice, option to provide how many sides and number of times to roll a dice (Default count is 1)
 - `/fact` - Display today's fact
 - `/meme ` - Display a random meme
-- `/coinflip` - Flip a coin ***In Progress***
+- `/coinflip` - Flip a coin
 - `/lol build` - Get build stats for a champion for different roles ***In Progress***
 - `/lol counters` - Get counters for a champion ***In Progress***
 - `/lol stats` - Get essential stats for a player ***In Progress***
