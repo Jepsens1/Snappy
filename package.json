@@ -1,5 +1,5 @@
 {
-  "name": "discord-bot",
+  "name": "Snappy",
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
@@ -9,9 +9,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Phillip Jepsen",
+  "license": "MIT",
+  "description": "A Discord bot that provides CS2 steam stats • CS2 faceit stats • LoL build, counters, player stats and rank • Moderation • Fun Commands • Dice rolls • and more",
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
