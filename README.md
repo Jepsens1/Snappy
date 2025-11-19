@@ -85,8 +85,9 @@ Available commands:
 - `/lol rank` - Get rank for a player ***In Progress***
 - `/cs2 steamprofile` - Get essential stats for player ***In Progress***
 - `/cs2 faceit` - Get essential stats for a faceit player ***In Progress***
-- `/remind` - Create a reminder for ***In Progress***
-- `/remindlist` - Displays all reminder created ***In Progress***
+- `/remind` - Create a reminder for
+- `/remindlist` - Displays all reminder created
+- `/remindremove` - Remove all reminders
 - `/poll` - Create a interaction poll ***In Progress***
 - `/autorole` - Select a role to assign new Guild Members a role automatically when joining the Guild ***In Progress***
 - `/removeautorole` - Disables automatically assigning new Guild Members a role when joining a Guild ***In Progress***
