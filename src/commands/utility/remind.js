@@ -44,6 +44,7 @@ module.exports = {
           content: "Please provide a valid date format, ie. 3pm tomorrow",
           flags: MessageFlags.Ephemeral,
         });
+        return;
       }
       const remind = new Remind({
         userId: interaction.user.id,

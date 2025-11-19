@@ -19,7 +19,9 @@ module.exports = {
             .setTitle("Reminder")
             .setDescription(reminder.content)
             .setColor("Random")
-            .setFooter({ content: `Reminder from ${reminder.createdAt}` });
+            .setFooter({
+              text: `Reminder from ${reminder.createdAt}`,
+            });
           await user.send({ embeds: [embed] });
           await reminder.deleteOne();
           console.log("Reminder was sent out and removed from DB");
