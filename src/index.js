@@ -2,13 +2,10 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { connect } = require("./database");
-
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
-
-const hello = "hello";
 
 const foldersPath = path.join(__dirname, "commands");
 // Gets all subdirectories inside commands folder
