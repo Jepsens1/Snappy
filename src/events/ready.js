@@ -19,8 +19,9 @@ module.exports = {
             .setTitle("Reminder")
             .setDescription(reminder.content)
             .setColor("Random")
-            .setFooter({
-              text: `Reminder from ${reminder.createdAt}`,
+            .addFields({
+              name: "Reminder from",
+              value: `<t:${Math.floor(reminder.createdAt / 1000)}:F>`,
             });
           await user.send({ embeds: [embed] });
           await reminder.deleteOne();

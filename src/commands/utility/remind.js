@@ -6,6 +6,7 @@ const {
 
 const Remind = require("../../models/remind_schema");
 const chrono = require("chrono-node");
+const { EmbedBuilder } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("remind")
@@ -53,8 +54,20 @@ module.exports = {
         expiresAt: parseDate,
       });
       await remind.save();
+
+      const embed = new EmbedBuilder()
+        .setColor("Random")
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.displayAvatarURL(),
+        })
+        .addFields({
+          name: `Reminder ${content}`,
+          value: `<t:${Math.floor(parseDate / 1000)}:F>`,
+          inline: false,
+        });
       await interaction.reply({
-        content: `I'll remind you on ${parseDate}, ${content}`,
+        embeds: [embed],
         flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
