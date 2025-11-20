@@ -1,5 +1,6 @@
 const { Events, GuildMember } = require("discord.js");
 const AutoRole = require("../models/autorole");
+const Welcome = require("../models/welcome_schema");
 module.exports = {
   name: Events.GuildMemberAdd,
 
@@ -13,10 +14,17 @@ module.exports = {
 
       const autoRole = await AutoRole.findOne({ guildId: guild.id });
 
-      if (!autoRole) {
-        return;
+      if (autoRole) {
+        await member.roles.add(autoRole.roleId);
       }
-      await member.roles.add(autoRole.roleId);
+
+      if (!member.user.bot) {
+        const welcome = await Welcome.findOne({ guildId: guild.id });
+
+        if (welcome) {
+          await member.send(welcome.message);
+        }
+      }
     } catch (error) {
       console.error("Unexpected error during guildMemberAdd event", error);
     }
