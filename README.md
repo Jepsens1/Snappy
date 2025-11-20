@@ -89,8 +89,8 @@ Available commands:
 - `/remindlist` - Displays all reminder created
 - `/remindremove` - Remove all reminders
 - `/poll` - Create a interaction poll ***In Progress***
-- `/autorole` - Select a role to assign new Guild Members a role automatically when joining the Guild ***In Progress***
-- `/removeautorole` - Disables automatically assigning new Guild Members a role when joining a Guild ***In Progress***
+- `/autorole-configure` - Select a role to assign new Guild Members a role automatically when joining the Guild ***In Progress***
+- `/autorole-disable` - Disables automatically assigning new Guild Members a role when joining a Guild ***In Progress***
 - `/welcome` - Write a text that the bot should send to new Members when joining the Guild ***In Progress***
 
 ## Examples
