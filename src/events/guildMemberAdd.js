@@ -1,5 +1,5 @@
 const { Events, GuildMember } = require("discord.js");
-const AutoRole = require("../models/autorole");
+const AutoRole = require("../models/autorole_schema");
 const Welcome = require("../models/welcome_schema");
 module.exports = {
   name: Events.GuildMemberAdd,

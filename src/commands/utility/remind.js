@@ -2,11 +2,11 @@ const {
   SlashCommandBuilder,
   InteractionContextType,
   MessageFlags,
+  EmbedBuilder,
 } = require("discord.js");
 
 const Remind = require("../../models/remind_schema");
 const chrono = require("chrono-node");
-const { EmbedBuilder } = require("discord.js");
 
 /**
  * @param {import("discord.js").Interaction} interaction
