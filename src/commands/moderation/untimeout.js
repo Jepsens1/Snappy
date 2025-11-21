@@ -49,8 +49,15 @@ module.exports = {
     if (!hasSufficientRights) return;
     try {
       await member.timeout(null, reason);
+      await interaction.reply(
+        `${member.toString()} you timeout has now been removed: ${reason}`,
+      );
     } catch (error) {
-      console.error("Unknown error during untimeout", error);
+      await interaction.reply({
+        content: "Unexpected error during /untimeout",
+        flags: MessageFlags.Ephemeral,
+      });
+      console.error("Unexpected error during /untimeout", error);
     }
   },
 };

@@ -5,29 +5,28 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  MessageFlags,
 } = require("discord.js");
 const { handlePermissionRights } = require("../../utils/checkPermissions");
 
 const CONFIRM = "confirm";
 const CANCEL = "cancel";
-
-const data = new SlashCommandBuilder()
-  .setName("kick")
-  .setDescription("Select a member and ban them.")
-  .addUserOption((option) =>
-    option
-      .setName("target")
-      .setDescription("The member to kick")
-      .setRequired(true),
-  )
-  .addStringOption((option) =>
-    option.setName("reason").setDescription("Reason for kick"),
-  )
-  .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
-  .setContexts(InteractionContextType.Guild);
-
 module.exports = {
-  data: data,
+  data: new SlashCommandBuilder()
+    .setName("kick")
+    .setDescription("Select a member and ban them.")
+    .addUserOption((option) =>
+      option
+        .setName("target")
+        .setDescription("The member to kick")
+        .setRequired(true),
+    )
+    .addStringOption((option) =>
+      option.setName("reason").setDescription("Reason for kick"),
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
+    .setContexts(InteractionContextType.Guild),
+
   /**
    * @param {import('discord.js').Interaction} interaction
    */
@@ -37,9 +36,10 @@ module.exports = {
       interaction.options.getString("reason") ?? "No reason provided";
 
     if (target.user.id == interaction.guild.ownerId) {
-      await interaction.reply(
-        "You can't kick that user because they're the server owner.",
-      );
+      await interaction.reply({
+        content: "You can't kick that user because they're the server owner.",
+        flags: MessageFlags.Ephemeral,
+      });
       return;
     }
     const hasSufficientRights = handlePermissionRights(

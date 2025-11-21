@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, InteractionContextType } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  InteractionContextType,
+  MessageFlags,
+} = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -54,6 +58,10 @@ module.exports = {
       }
     } catch (error) {
       console.error("Unexpected error happened during /roll", error);
+      await interaction.reply({
+        content: "Unexpected error happened during /roll",
+        flags: MessageFlags.Ephemeral,
+      });
     }
   },
 };

@@ -2,6 +2,7 @@ const {
   SlashCommandBuilder,
   InteractionContextType,
   EmbedBuilder,
+  MessageFlags,
 } = require("discord.js");
 
 module.exports = {
@@ -13,8 +14,6 @@ module.exports = {
    * @param {import('discord.js').Interaction} interaction
    */
   async execute(interaction) {
-    await interaction.deferReply();
-
     try {
       const roles = await interaction.guild.roles.fetch();
       const roleNames = roles.map((role) => role.toString());
@@ -25,10 +24,16 @@ module.exports = {
           name: "",
           value: `${roleNames}`,
         });
-      await interaction.editReply({ embeds: [roleEmbed] });
+      await interaction.reply({
+        embeds: [roleEmbed],
+        flags: MessageFlags.Ephemeral,
+      });
     } catch (error) {
-      await interaction.editReply("Unknown error occured during /roles");
-      console.error("Error happened", error);
+      await interaction.reply({
+        content: "Unexpected error during /roles",
+        flags: MessageFlags.Ephemeral,
+      });
+      console.error("Unexpected error during /roles", error);
     }
   },
 };

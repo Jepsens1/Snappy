@@ -1,8 +1,9 @@
-const { EmbedBuilder } = require("@discordjs/builders");
 const {
   SlashCommandBuilder,
   PermissionFlagsBits,
   InteractionContextType,
+  EmbedBuilder,
+  MessageFlags,
 } = require("discord.js");
 
 module.exports = {
@@ -51,6 +52,9 @@ module.exports = {
         .setDescription("Should this invite be temporary")
         .setRequired(true),
     )
+    .addBooleanOption((option) =>
+      option.setName("ephemeral").setDescription("Should all see this message"),
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.CreateInstantInvite)
     .setContexts(InteractionContextType.Guild),
   /**
@@ -58,13 +62,13 @@ module.exports = {
    * @param {import("discord.js").Interaction} interaction
    */
   async execute(interaction) {
-    await interaction.deferReply();
     const channel = interaction.options.getChannel("channel");
     const expire = interaction.options.getString("expire");
     const maxInvites = Number.parseInt(
       interaction.options.getString("maxuser"),
     );
     const isTemp = interaction.options.getBoolean("temp");
+    const ephemeral = interaction.options.getBoolean("ephemeral") ?? true;
     try {
       const expireSeconds = Number(expire);
       const invite = await interaction.guild.invites.create(channel, {
@@ -97,12 +101,20 @@ module.exports = {
           { name: "Invite Link", value: invite.toString() },
         )
         .setTimestamp();
-      await interaction.editReply({ embeds: [inviteEmbed] });
+      if (ephemeral) {
+        await interaction.reply({
+          embeds: [inviteEmbed],
+          flags: MessageFlags.Ephemeral,
+        });
+      } else {
+        await interaction.reply({ embeds: [inviteEmbed] });
+      }
     } catch (error) {
-      await interaction.editReply(
-        "Failed to create a invite link for this guild.",
-      );
-      console.error(error);
+      console.error("Unexpected error during /invite", error);
+      await interaction.reply({
+        content: "Unexpected error during /invite",
+        flags: MessageFlags.Ephemeral,
+      });
     }
   },
 };

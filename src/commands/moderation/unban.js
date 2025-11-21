@@ -2,6 +2,7 @@ const {
   SlashCommandBuilder,
   InteractionContextType,
   PermissionFlagsBits,
+  MessageFlags,
 } = require("discord.js");
 
 module.exports = {
@@ -36,16 +37,22 @@ module.exports = {
         .unban(userId, reason)
         .catch(console.error);
       if (!result) {
-        await interaction.reply(
-          "Ehhhhm. this is a bit of a weird situation, because that provided user has not been banned on here. So i cannot unban a user that is not banned",
-        );
+        await interaction.reply({
+          content:
+            "Ehhhhm. this is a bit of a weird situation, because that provided user has not been banned on here. So i cannot unban a user that is not banned",
+          flags: MessageFlags.Ephemeral,
+        });
       } else {
         await interaction.reply(
           `Yaaaayyy. ${result.username} has been unbanned: ${reason}`,
         );
       }
     } catch (error) {
-      console.log("Unknown error during unbanning", error);
+      await interaction.reply({
+        content: "Unexpected error during /unban",
+        flags: MessageFlags.Ephemeral,
+      });
+      console.log("Unexpected error during /unban", error);
     }
   },
 };

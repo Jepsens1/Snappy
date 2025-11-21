@@ -173,7 +173,7 @@ module.exports = {
       member,
       "warn",
     );
-    if (!hasSufficientRights) return false;
+    if (!hasSufficientRights) return;
 
     try {
       // Check if member already has a warning
@@ -210,7 +210,11 @@ module.exports = {
         );
       }
     } catch (error) {
-      console.error("Error happened during warn command", error);
+      await interaction.reply({
+        content: "Unexpected error during /warn",
+        flags: MessageFlags.Ephemeral,
+      });
+      console.error("Unexpected error during /warn", error);
     }
   },
 };

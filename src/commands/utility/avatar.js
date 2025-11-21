@@ -3,6 +3,7 @@ const {
   InteractionContextType,
   PermissionFlagsBits,
   EmbedBuilder,
+  MessageFlags,
 } = require("discord.js");
 
 module.exports = {
@@ -36,7 +37,6 @@ module.exports = {
    * @param {import('discord.js').Interaction} interaction
    */
   async execute(interaction) {
-    await interaction.deferReply();
     const member = interaction.options.getMember("member");
     const sizeInPixels = interaction.options.getInteger("size") || 1024;
     try {
@@ -47,10 +47,13 @@ module.exports = {
           iconURL: member.displayAvatarURL(),
         })
         .setImage(member.displayAvatarURL({ size: sizeInPixels }));
-      await interaction.editReply({ embeds: [avatarEmbed] });
+      await interaction.reply({ embeds: [avatarEmbed] });
     } catch (error) {
-      await interaction.editReply("Failed to display member's avatar url");
-      console.error("Failed to display member's avatar url", error);
+      console.error("Unexpected error during /avatar", error);
+      await interaction.reply({
+        content: "Unexpected error during /avatar",
+        flags: MessageFlags.Ephemeral,
+      });
     }
   },
 };
