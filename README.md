@@ -1,4 +1,4 @@
-# Snappy: The Snappiest All-in-One Discord Bot
+# Snappy: The All-in-One Discord Bot
 A Discord bot that provides CS2 steam stats • CS2 faceit stats • LoL build, counters, player stats and rank • Moderation • Fun Commands • Dice rolls • and more
 
 ## Motivation
