@@ -7,7 +7,7 @@ module.exports = {
    * @param {string} action
    * @returns {boolean}
    */
-  async handlePermissionRights(interaction, member, action) {
+  async handlePermissionRights(interaction, member, action, deferred = false) {
     // Simply returns true if the interaction member is the guild owner
     if (interaction.member.user.id == interaction.guild.ownerId) {
       return true;
@@ -16,17 +16,29 @@ module.exports = {
     const requestUserRolePosition = interaction.member.roles.highest.position;
     const botRolePosition = interaction.guild.members.me.roles.highest.position;
     if (targetUserRolePosition >= requestUserRolePosition) {
-      await interaction.reply({
-        content: `You can't ${action} that user because they have same/higher role than you`,
-        flags: MessageFlags.Ephemeral,
-      });
+      if (deferred) {
+        await interaction.editReply({
+          content: `You can't ${action} that user because they have same/higher role than you`,
+        });
+      } else {
+        await interaction.reply({
+          content: `You can't ${action} that user because they have same/higher role than you`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
       return false;
     }
     if (targetUserRolePosition >= botRolePosition) {
-      await interaction.reply({
-        content: `I can't ${action} that user because they have same/higher role as me.`,
-        flags: MessageFlags.Ephemeral,
-      });
+      if (deferred) {
+        await interaction.editReply({
+          content: `I can't ${action} that user because they have same/higher role as me.`,
+        });
+      } else {
+        await interaction.reply({
+          content: `I can't ${action} that user because they have same/higher role as me.`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
       return false;
     }
     return true;

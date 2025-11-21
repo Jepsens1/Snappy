@@ -26,7 +26,6 @@ async function configureWelcome(interaction) {
   await interaction.editReply({
     content:
       "Welcome message has now been configured. To disable run `/welcome disable`",
-    flags: MessageFlags.Ephemeral,
   });
 }
 /**
@@ -37,7 +36,6 @@ async function disableWelcome(interaction) {
     await interaction.editReply({
       content:
         "Welcome message has not been configured for this guild. Use `/welcome configure` to set it up",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -45,7 +43,6 @@ async function disableWelcome(interaction) {
   await interaction.editReply({
     content:
       "Welcome message has now been disabled for this guild. Use `/welcome configure` to set it up again",
-    flags: MessageFlags.Ephemeral,
   });
 }
 module.exports = {
@@ -88,7 +85,6 @@ module.exports = {
       console.error("Unexpected error during /welcome", error);
       await interaction.editReply({
         content: "Unexpected error during /welcome",
-        flags: MessageFlags.Ephemeral,
       });
     }
   },

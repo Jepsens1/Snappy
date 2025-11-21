@@ -70,15 +70,16 @@ async function confirmNewWarning(
     .setStyle(ButtonStyle.Secondary);
 
   const row = new ActionRowBuilder().addComponents(cancel, confirm);
-  const response = await interaction.reply({
+  await interaction.editReply({
     components: [row],
     embeds: [embed],
-    withResponse: true,
   });
+
+  const message = await interaction.fetchReply();
   const collectorFilter = (i) => i.user.id === interaction.user.id;
 
   try {
-    const confirmation = await response.resource.message.awaitMessageComponent({
+    const confirmation = await message.awaitMessageComponent({
       filter: collectorFilter,
       time: 60_000,
     });
@@ -152,18 +153,17 @@ module.exports = {
     const reason = interaction.options.getString("reason");
     const duration = interaction.options.getInteger("duration");
 
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     if (member.user.bot) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "You cannot warn a bot",
-        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     if (member.user.id === interaction.guild.ownerId) {
-      await interaction.reply({
+      await interaction.editReply({
         content:
           "You cannot warn the provided member, cause it's the owner of this guild",
-        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -172,6 +172,7 @@ module.exports = {
       interaction,
       member,
       "warn",
+      true,
     );
     if (!hasSufficientRights) return;
 
@@ -201,18 +202,16 @@ module.exports = {
           reason,
           duration,
         );
-        await interaction.reply({
+        await interaction.editReply({
           content: `A warning was created for ${member.user.tag}`,
-          flags: MessageFlags.Ephemeral,
         });
         await interaction.channel.send(
           `${member.user.toString()} you have just been given a warning for: ${reason}. The warning was issued by: ${interaction.user.toString()}`,
         );
       }
     } catch (error) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "Unexpected error during /warn",
-        flags: MessageFlags.Ephemeral,
       });
       console.error("Unexpected error during /warn", error);
     }

@@ -50,19 +50,18 @@ async function handleDeletion(interaction, member, warnings, query) {
       `Select either one warning to delete, or press "Delete all warnings".\n\n**Active warnings:** ${warnings.length}`,
     )
     .setThumbnail(member.user.displayAvatarURL());
-  const response = await interaction.reply({
+  await interaction.editReply({
     embeds: [embed],
     components: [
       new ActionRowBuilder().addComponents(selectMenu),
       new ActionRowBuilder().addComponents(deleteAllButton),
       new ActionRowBuilder().addComponents(cancelButton),
     ],
-    flags: MessageFlags.Ephemeral,
-    withResponse: true,
   });
   const collectorFilter = (i) => i.user.id === interaction.user.id;
 
-  const collector = response.resource.message.createMessageComponentCollector({
+  const message = await interaction.fetchReply();
+  const collector = message.createMessageComponentCollector({
     filter: collectorFilter,
     time: 60_000,
   });
@@ -77,6 +76,9 @@ async function handleDeletion(interaction, member, warnings, query) {
           components: [],
           embeds: [],
         });
+        await interaction.channel.send(
+          `${member.toString()} i have some great news for you. ${interaction.user.toString()} has decided to remove one of your warnings.\nIsn't that great :smiley:`,
+        );
       }
       if (i.isButton() && i.customId === "delete_warning_all") {
         await Warning.deleteMany(query);
@@ -103,13 +105,12 @@ async function handleDeletion(interaction, member, warnings, query) {
       console.error(error);
       await i.editReply({
         content: "Error occured during collection",
-        flags: MessageFlags.Ephemeral,
       });
     }
   });
   collector.on("end", (collected) => {
     if (collected.size === 0) {
-      response.editReply({
+      interaction.editReply({
         content: "Confirmation not recieved within 1 minute, cancelling",
         components: [],
         embeds: [],
@@ -136,10 +137,11 @@ module.exports = {
    */
   async execute(interaction) {
     const member = interaction.options.getMember("member");
+
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     if (member.user.bot) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "Selecting a bot is not allowed!",
-        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -147,6 +149,7 @@ module.exports = {
       interaction,
       member,
       "removewarn",
+      true,
     );
     if (!hasSufficientRights) return false;
     try {
@@ -157,10 +160,9 @@ module.exports = {
       };
       const warnings = await Warning.find(query);
       if (warnings.length === 0) {
-        await interaction.reply({
+        await interaction.editReply({
           content:
             "This member does not have any active warnings in this guild",
-          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -168,7 +170,10 @@ module.exports = {
         console.error,
       );
     } catch (error) {
-      console.error("Error during removal of warning", error);
+      await interaction.editReply({
+        content: "Unexpected error during /removewarn",
+      });
+      console.error("Unexpected error during /removewarn", error);
     }
   },
 };

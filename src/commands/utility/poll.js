@@ -129,6 +129,7 @@ module.exports = {
     const subcommand = interaction.options.getSubcommand();
 
     try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       if (subcommand === "create") {
         const msg = interaction.options.getString("message");
         const choices = getChoices(interaction);
@@ -144,32 +145,28 @@ module.exports = {
             allowMultiselect: multiSelect,
           },
         });
-        await interaction.reply({
+        await interaction.editReply({
           content: "Poll created :white_check_mark:",
-          flags: MessageFlags.Ephemeral,
         });
       } else {
         const msgId = interaction.options.getString("messageid");
         const targetMessage = await interaction.channel.messages.fetch(msgId);
 
         if (!targetMessage.poll) {
-          await interaction.reply({
+          await interaction.EditReply({
             content: "The provides messageId is not a poll",
-            flags: MessageFlags.Ephemeral,
           });
           return;
         }
         await targetMessage.poll.end();
-        await interaction.reply({
+        await interaction.editReply({
           content: "Poll ended :x:",
-          flags: MessageFlags.Ephemeral,
         });
       }
     } catch (error) {
       console.error("Unexpected error during /poll", error);
-      await interaction.reply({
+      await interaction.editReply({
         content: "Unexpected error during /poll",
-        flags: MessageFlags.Ephemeral,
       });
     }
   },

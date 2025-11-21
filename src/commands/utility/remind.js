@@ -19,9 +19,8 @@ async function createReminder(interaction) {
     timezone: interaction.locale,
   });
   if (!parseDate) {
-    await interaction.reply({
+    await interaction.editReply({
       content: "Please provide a valid date format, ie. 3pm tomorrow",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -44,9 +43,8 @@ async function createReminder(interaction) {
       value: `<t:${Math.floor(parseDate / 1000)}:F>`,
       inline: false,
     });
-  await interaction.reply({
+  await interaction.editReply({
     embeds: [embed],
-    flags: MessageFlags.Ephemeral,
   });
 }
 
@@ -56,9 +54,8 @@ async function createReminder(interaction) {
 async function listReminders(interaction) {
   const reminders = await Remind.find({ userId: interaction.user.id });
   if (reminders.length === 0) {
-    await interaction.reply({
+    await interaction.editReply({
       content: "You have no active reminders",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -88,9 +85,8 @@ async function listReminders(interaction) {
       text: `... and ${reminders.length - maxFields} more (max 25 can be shown)`,
     });
   }
-  await interaction.reply({
+  await interaction.editReply({
     embeds: [embed],
-    flags: MessageFlags.Ephemeral,
   });
 }
 
@@ -100,16 +96,14 @@ async function listReminders(interaction) {
 async function removeReminders(interaction) {
   const reminders = await Remind.find({ userId: interaction.user.id });
   if (reminders.length === 0) {
-    await interaction.reply({
+    await interaction.editReply({
       content: "You have no active reminders",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
   await Remind.deleteMany({ userId: interaction.user.id });
-  await interaction.reply({
+  await interaction.editReply({
     content: "All active reminders are now removed",
-    flags: MessageFlags.Ephemeral,
   });
 }
 module.exports = {
@@ -153,6 +147,7 @@ module.exports = {
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
     try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       if (subcommand === "create") {
         await createReminder(interaction);
       } else if (subcommand === "list") {
@@ -162,9 +157,8 @@ module.exports = {
       }
     } catch (error) {
       console.error("Unexpected error during /remind", error);
-      await interaction.reply({
+      await interaction.editReply({
         content: "Unexpected error during /remind",
-        flags: MessageFlags.Ephemeral,
       });
     }
   },

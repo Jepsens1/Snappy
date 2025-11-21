@@ -17,7 +17,6 @@ async function configureAutoRole(interaction) {
       await interaction.editReply({
         content:
           "Auto role has already been configured for that role. To disable run `/autorole disable`",
-        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -32,7 +31,6 @@ async function configureAutoRole(interaction) {
   await interaction.editReply({
     content:
       "Autorole has now been configured. To disable run `/autorole disable`",
-    flags: MessageFlags.Ephemeral,
   });
 }
 
@@ -44,7 +42,6 @@ async function disableAutoRole(interaction) {
     await interaction.editReply({
       content:
         "Autorole has not been configured for this guild. Use `/autorole configure` to set it up",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -52,7 +49,6 @@ async function disableAutoRole(interaction) {
   await interaction.editReply({
     content:
       "Autorole has now been disabled for this guild. Use `/autorole configure` to set it up again",
-    flags: MessageFlags.Ephemeral,
   });
 }
 module.exports = {
@@ -93,7 +89,6 @@ module.exports = {
       console.error("Unexpected error during /autorole", error);
       await interaction.editReply({
         content: "Unexpected error during /autorole",
-        flags: MessageFlags.Ephemeral,
       });
     }
   },

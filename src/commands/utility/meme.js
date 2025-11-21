@@ -1,7 +1,6 @@
 const {
   SlashCommandBuilder,
   InteractionContextType,
-  MessageFlags,
   EmbedBuilder,
 } = require("discord.js");
 
@@ -17,6 +16,7 @@ module.exports = {
    */
   async execute(interaction) {
     try {
+      await interaction.deferReply();
       const meme = await fetchRandomMeme();
 
       const embed = new EmbedBuilder()
@@ -32,12 +32,11 @@ module.exports = {
           iconURL: interaction.user.displayAvatarURL(),
         })
         .setImage(meme.image);
-      await interaction.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
     } catch (error) {
       console.error("Unexpected error during /meme", error);
-      await interaction.reply({
+      await interaction.editReply({
         content: "Unexpected error happened during /meme",
-        flags: MessageFlags.Ephemeral,
       });
     }
   },
