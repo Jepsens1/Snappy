@@ -59,7 +59,7 @@ npm run dev
 ## 📖 Usage
 
 Available commands:
-- `/help` - ***In progress***
+- `/help` - ***Needs revision***
 - `/about` - Shows Bot-version, Server count and Uptime
 - `/uptime` - Display in date format how long the bot has been online
 - `/invite` - Creates a invite link to Discord Guild. Option to select expire time, User limit and if the invite link is temporary
