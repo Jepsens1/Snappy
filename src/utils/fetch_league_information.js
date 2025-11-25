@@ -320,32 +320,7 @@ async function fetchSummonerRank(summoner) {
 
     // Check if Summoner has no ranked data (unranked)
     if (!Array.isArray(data) || data.length === 0) {
-      // Cache UNRANKED for both solo & flex to avoid re-fetching and spamming API
-      summoner.rankedStats = [
-        {
-          queueType: "RANKED_SOLO_5x5",
-          tier: "UNRANKED",
-          rank: "",
-          leaguePoints: 0,
-          wins: 0,
-          losses: 0,
-          hotStreak: false,
-          winrate: 0,
-        },
-        {
-          queueType: "RANKED_FLEX_SR",
-          tier: "UNRANKED",
-          rank: "",
-          leaguePoints: 0,
-          wins: 0,
-          losses: 0,
-          hotStreak: false,
-          winrate: 0,
-        },
-      ];
-      console.log(
-        "Player is unranked, stored dummy rankedStats entry to avoid re-fetching.",
-      );
+      summoner.rankedStats = [];
     } else {
       // Maps API response to rankedStats format
       const rankedStats = data
@@ -383,8 +358,28 @@ async function fetchSummonerRank(summoner) {
     throw error;
   }
 }
+
 /**
- * Fetch Summoner + ranked stats + match history in one function
+ * Fetch Summoner's match history
+ * @param {String} tagLine
+ * @param {String} summonerName
+ * @returns {Promise<Summoner>}
+ */
+async function getSummonerMatchHistory(summonerName, tagLine) {
+  try {
+    // 1. Fetch Summoner + cache result
+    let summoner = await fetchSummoner(summonerName, tagLine);
+
+    // 2. Fetch match history + cache result
+    summoner = await fetchMatchHistory(summoner);
+    return summoner;
+  } catch (error) {
+    console.log(error.stack);
+    throw error;
+  }
+}
+/**
+ * Fetch Summoner + ranked stats + match history + champion mastery in one function
  * @param {String} summonerName
  * @param {String} tagLine
  * @returns {Promise<Summoner>}
@@ -412,4 +407,5 @@ module.exports = {
   getChampionBuild,
   getChampionCounters,
   getSummonerStats,
+  getSummonerMatchHistory,
 };

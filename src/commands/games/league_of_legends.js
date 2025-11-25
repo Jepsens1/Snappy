@@ -3,6 +3,7 @@ const {
   getChampionBuild,
   getChampionCounters,
   getSummonerStats,
+  getSummonerMatchHistory,
 } = require("../../utils/fetch_league_information");
 const { EmbedBuilder } = require("discord.js");
 
@@ -13,6 +14,55 @@ function formatTier(tier) {
   return tier.charAt(0) + tier.slice(1).toLowerCase();
 }
 
+/**
+ * Creates Discord embed with Summoner match history
+ * Shows:
+ * - Profile
+ * - Match history
+ * @param {Summoner} player
+ * @returns {EmbedBuilder}
+ */
+function createHistoryEmbed(player) {
+  const wins = player.matchHistory?.filter(
+    (match) => match.win === true,
+  ).length;
+  const losses = player.matchHistory?.filter(
+    (match) => match.win === false,
+  ).length;
+  const total = wins + losses;
+  const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+  const embed = new EmbedBuilder()
+    .setTitle(`${player.gameName}#${player.tagLine}`)
+    .setThumbnail(
+      `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${player.profileIconId}.jpg`,
+    )
+    .setDescription(
+      `**Data fetched: <t:${Math.floor(player.updatedAt / 1000)}:R>**`,
+    )
+    .addFields({
+      name: "Last Games",
+      value: `${total}G ${wins}W ${losses}L / ${winrate}% WR`,
+      inline: true,
+    })
+    .setColor("#00AE86");
+
+  if (!player.matchHistory || player.matchHistory.length === 0) {
+    embed.addFields({ name: "Match History", value: "No Data", inline: false });
+  } else {
+    const matchStats = player.matchHistory
+      .map((match, index) => {
+        //TODO do proper gameType and champion picture
+        const gameType = match.queueId === 420 ? "Ranked" : "Normal";
+        return `**${index + 1}.** ${gameType} - ${match.championName} - **${match.kills}/${match.deaths}/${match.assists}** - ${match.win ? "✅" : "❌"} ${match.teamEarlySurrendered ? "❌ Early surrender" : ""}`;
+      })
+      .join("\n");
+    embed.addFields({
+      name: "**Match History**",
+      value: matchStats,
+    });
+  }
+  return embed;
+}
 /**
  * Creates Discord embed with LoL stats for a Summoner.
  * Shows:
@@ -54,27 +104,35 @@ function createStatsEmbed(player) {
       },
     )
     .setColor("#00AE86");
-
-  player.rankedStats
-    .sort((a, b) => (a.queueType === "RANKED_SOLO_5x5" ? -1 : 1))
-    .forEach((stat) => {
-      const queueName =
-        stat.queueType === "RANKED_SOLO_5x5" ? "Solo/Duo" : "Flex 5v5";
-      const rankText =
-        stat.tier === "UNRANKED"
-          ? "Unranked"
-          : `${formatTier(stat.tier)} ${stat.rank}`;
-      embed.addFields({
-        name: `${queueName}`,
-        value:
-          `**${rankText}** ${stat.leaguePoints} LP\n` +
-          `Wins: ${stat.wins} | Losses: ${stat.losses} | Winrate: ${stat.winrate}%\n` +
-          `${stat.hotStreak ? "🔥 Currently in a Hot Streak" : ""}`,
-        inline: false,
-      });
+  if (!player.rankedStats || player.rankedStats.length === 0) {
+    embed.addFields({
+      name: "Ranked",
+      value: "No Ranked played",
+      inline: false,
     });
+  } else {
+    player.rankedStats
+      .sort((a, b) => (a.queueType === "RANKED_SOLO_5x5" ? -1 : 1))
+      .forEach((stat) => {
+        const queueName =
+          stat.queueType === "RANKED_SOLO_5x5" ? "Solo/Duo" : "Flex 5v5";
+        const rankText =
+          stat.tier === "UNRANKED"
+            ? "Unranked"
+            : `${formatTier(stat.tier)} ${stat.rank}`;
+        embed.addFields({
+          name: `${queueName}`,
+          value:
+            `**${rankText}** ${stat.leaguePoints} LP\n` +
+            `Wins: ${stat.wins} | Losses: ${stat.losses} | Winrate: ${stat.winrate}%\n` +
+            `${stat.hotStreak ? "🔥 Currently in a Hot Streak" : ""}`,
+          inline: false,
+        });
+      });
+  }
   const topChamps = player.topChampions
     .map((champ, index) => {
+      // TODO display champion picture
       return `**${index + 1}.** ${champ.championId} - ${champ.championPoints.toLocaleString("en-US")} points`;
     })
     .join("\n");
@@ -209,9 +267,11 @@ module.exports = {
         const embed = createStatsEmbed(player);
         await interaction.editReply({ embeds: [embed] });
       } else if (subcommand === "history") {
-        //const summoner = interaction.options.getString("summoner");
-        //const tagLine = interaction.options.getString("tagline");
-        await interaction.editReply("`/lol history` is under development");
+        const summoner = interaction.options.getString("summoner");
+        const tagLine = interaction.options.getString("tagline");
+        const player = await getSummonerMatchHistory(summoner, tagLine);
+        const embed = createHistoryEmbed(player);
+        await interaction.editReply({ embeds: [embed] });
       }
     } catch (error) {
       await interaction.editReply("Unexpected error during /lol");
