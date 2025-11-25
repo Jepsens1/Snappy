@@ -25,6 +25,14 @@ function formatTier(tier) {
  * @returns {EmbedBuilder}
  */
 function createStatsEmbed(player) {
+  const wins = player.matchHistory?.filter(
+    (match) => match.win === true,
+  ).length;
+  const losses = player.matchHistory?.filter(
+    (match) => match.win === false,
+  ).length;
+  const total = wins + losses;
+  const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
   const embed = new EmbedBuilder()
     .setTitle(`${player.gameName}#${player.tagLine}`)
     .setThumbnail(
@@ -35,13 +43,13 @@ function createStatsEmbed(player) {
     )
     .addFields(
       {
-        name: "Summoner Level",
-        value: `${player.summonerLevel}`,
+        name: "Level/Region",
+        value: `${player.summonerLevel} / ${REGIONS.get(player.region)}`,
         inline: true,
       },
       {
-        name: "Region",
-        value: `${REGIONS.get(player.region)}`,
+        name: "Last Games",
+        value: `${total}G ${wins}W ${losses}L / ${winrate}% WR`,
         inline: true,
       },
     )
@@ -65,13 +73,16 @@ function createStatsEmbed(player) {
         inline: false,
       });
     });
-  if (!player.rankedStats || player.rankedStats.length === 0) {
-    embed.addFields({
-      name: "Ranked",
-      value: "No Ranked played",
-      inline: false,
-    });
-  }
+  const topChamps = player.topChampions
+    .map((champ, index) => {
+      return `**${index + 1}.** ${champ.championId} - ${champ.championPoints.toLocaleString("en-US")} points`;
+    })
+    .join("\n");
+
+  embed.addFields({
+    name: "**Top Champions**",
+    value: topChamps || "No data",
+  });
   return embed;
 }
 const REGIONS = new Map([
@@ -137,7 +148,7 @@ module.exports = {
       subcommand
         .setName("stats")
         .setDescription(
-          "Get relevant stats for a summoner such as rank,rank, winrate etc.",
+          "Get relevant stats for a summoner such as rank, rank, winrate etc.",
         )
         .addStringOption((option) =>
           option
@@ -158,27 +169,6 @@ module.exports = {
       subcommand
         .setName("history")
         .setDescription("Get match history for a summoner")
-        .addStringOption((option) =>
-          option
-            .setName("summoner")
-            .setDescription("player to search for name#000")
-            .setMaxLength(50)
-            .setRequired(true),
-        )
-        .addStringOption((option) =>
-          option
-            .setName("tagline")
-            .setDescription("player tagline")
-            .setRequired(true)
-            .setMaxLength(5),
-        ),
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("all")
-        .setDescription(
-          "Display all information for a summoner includes match-history and rank",
-        )
         .addStringOption((option) =>
           option
             .setName("summoner")
@@ -218,10 +208,6 @@ module.exports = {
         const player = await getSummonerStats(summoner, tagLine);
         const embed = createStatsEmbed(player);
         await interaction.editReply({ embeds: [embed] });
-      } else if (subcommand === "all") {
-        //const summoner = interaction.options.getString("summoner");
-        //const tagLine = interaction.options.getString("tagline");
-        await interaction.editReply("`/lol all` is under development");
       } else if (subcommand === "history") {
         //const summoner = interaction.options.getString("summoner");
         //const tagLine = interaction.options.getString("tagline");

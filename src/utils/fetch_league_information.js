@@ -6,7 +6,37 @@ class Champion {
     this.name = name;
   }
 }
+/**
+ * Converts region such as eun1 to EUROPE server
+ * @param {String} region
+ */
+function routeServerValues(region) {
+  switch (region) {
+    case "na1":
+    case "br1":
+    case "la1":
+    case "la2":
+      return `https://americas.api.riotgames.com/lol/match/v5/matches`;
 
+    case "kr":
+    case "jp1":
+      return `https://asia.api.riotgames.com/lol/match/v5/matches`;
+
+    case "eun1":
+    case "euw1":
+    case "tr1":
+    case "ru":
+      return `https://europe.api.riotgames.com/lol/match/v5/matches`;
+
+    case "oc1":
+    case "sg2":
+    case "ph2":
+    case "tw2":
+    case "vn2":
+    case "th2":
+      return `https://sea.api.riotgames.com/lol/match/v5/matches`;
+  }
+}
 function isOlderThan15Minutes(date) {
   if (!date) return true;
   return Date.now() - date.getTime() > 15 * 60 * 1000;
@@ -120,6 +150,138 @@ async function getChampionCounters(champion) {
 }
 
 /**
+ * Fetch match stats from RIOT API
+ * @param {String} match
+ */
+async function fetchMatch(match) {
+  const res = await fetch(match, { headers: { "X-Riot-Token": API_KEY } });
+
+  if (!res.ok) {
+    throw new Error(`RIOT match API (${res.status})`);
+  }
+  return await res.json();
+}
+/**
+ * Fetch Summoner's match history (last 10 games)
+ * If cached match data is less than 15 minutes -> return cached data from DB
+ * Else fetch from RIOT API
+ * @param {Summoner} summoner
+ * @returns {Promise<Summoner>}
+ */
+async function fetchMatchHistory(summoner) {
+  const latestData = summoner.matchHistory?.[0];
+
+  // Use cached match history if data is fresh
+  if (latestData && !isOlderThan15Minutes(latestData.updatedAt)) {
+    console.log("Using cached match history");
+    return summoner;
+  }
+  try {
+    console.log("Match history Cache is outdated, calling RIOT API's");
+    const matchHistoryAPI = routeServerValues(summoner.region);
+
+    const matchidxRes = await fetch(
+      `${matchHistoryAPI}/by-puuid/${summoner.puuid}/ids?start=0&count=10`,
+      { headers: { "X-Riot-Token": API_KEY } },
+    );
+    if (!matchidxRes.ok) {
+      throw new Error(`RIOT Match ids API (${matchidxRes.status})`);
+    }
+
+    const matchIdx = await matchidxRes.json();
+
+    if (!Array.isArray(matchIdx) || matchIdx.length === 0) {
+      summoner.matchHistory = [];
+    } else {
+      const matches = await Promise.all(
+        matchIdx.map((matchId) => fetchMatch(`${matchHistoryAPI}/${matchId}`)),
+      );
+      const simplifiedMatches = matches.map((match) => ({
+        matchId: match.metadata.matchId,
+        queueId: match.info.queueId,
+        championName: match.info.participants.find(
+          (p) => p.puuid === summoner.puuid,
+        ).championName,
+        deaths: match.info.participants.find((p) => p.puuid === summoner.puuid)
+          .deaths,
+        assists: match.info.participants.find((p) => p.puuid === summoner.puuid)
+          .assists,
+        kills: match.info.participants.find((p) => p.puuid === summoner.puuid)
+          .kills,
+        teamEarlySurrendered: match.info.participants.find(
+          (p) => p.puuid === summoner.puuid,
+        ).teamEarlySurrendered,
+        win: match.info.participants.find((p) => p.puuid === summoner.puuid)
+          .win,
+      }));
+      summoner.matchHistory = simplifiedMatches;
+    }
+    await summoner.save();
+    return summoner;
+  } catch (error) {
+    // Soft fail: If RIOT API's are down, use old data as fallback
+    if (latestData) {
+      console.warn(
+        "Riot API Error – returning cached match history:",
+        error.message,
+      );
+      return summoner;
+    }
+    throw error;
+  }
+}
+/**
+ * Fetch Summoner's champion mastery data
+ * If cached ranked data is less than 15 minutes -> return cache data from DB
+ * Else fetch from RIOT API
+ * @param {Summoner} summoner
+ * @returns {Promise<Summoner>}
+ */
+async function fetchSummonerTopChampions(summoner) {
+  // Use cached match history if data is fresh
+  const latestData = summoner.topChampions?.[0];
+  if (latestData && !isOlderThan15Minutes(latestData.updatedAt)) {
+    console.log("Using cached Champion mastery data");
+    return summoner;
+  }
+  try {
+    console.log("Champion mastery Cache is outdated, calling RIOT API's");
+
+    const res = await fetch(
+      `https://${summoner.region}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${summoner.puuid}/top`,
+      { headers: { "X-Riot-Token": API_KEY } },
+    );
+    if (!res.ok) {
+      // Soft fail - return old data
+      console.warn(`RIOT Ranked API failed (${res.status})`);
+      return summoner;
+    }
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length == 0) {
+      summoner.topChampions = [];
+    } else {
+      const champions = data.map((champ) => ({
+        championId: champ.championId,
+        championPoints: champ.championPoints,
+      }));
+      summoner.topChampions = champions;
+    }
+    await summoner.save();
+    return summoner;
+  } catch (error) {
+    // Soft fail: If RIOT API's are down, use old data as fallback
+    if (latestData) {
+      console.warn(
+        "Riot API Error – returning cached champion mastery:",
+        error.message,
+      );
+      return summoner;
+    }
+    throw error;
+  }
+}
+/**
  *
  * Fetch Summoner's ranked data
  * If cached ranked data is less than 15 minutes -> return cache data from DB
@@ -210,12 +372,19 @@ async function fetchSummonerRank(summoner) {
     await summoner.save();
     return summoner;
   } catch (error) {
-    console.log(error.stack);
+    // Soft fail: If RIOT API's are down, use old data as fallback
+    if (latestData) {
+      console.warn(
+        "Riot API Error – returning cached ranked data:",
+        error.message,
+      );
+      return summoner;
+    }
     throw error;
   }
 }
 /**
- * Fetch Summoner + ranked stats in one function
+ * Fetch Summoner + ranked stats + match history in one function
  * @param {String} summonerName
  * @param {String} tagLine
  * @returns {Promise<Summoner>}
@@ -226,6 +395,12 @@ async function getSummonerStats(summonerName, tagLine) {
     let summoner = await fetchSummoner(summonerName, tagLine);
     // 2. Fetch ranked stats + cache result
     summoner = await fetchSummonerRank(summoner);
+
+    // 3. Fetch match history + cache result
+    summoner = await fetchMatchHistory(summoner);
+
+    // 4. Fetch Summoner's Champion mastery
+    summoner = await fetchSummonerTopChampions(summoner);
     return summoner;
   } catch (error) {
     console.log(error.stack);

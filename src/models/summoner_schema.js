@@ -1,5 +1,56 @@
 const { model, Schema } = require("mongoose");
 
+const topChampionSchema = new Schema(
+  {
+    championId: {
+      type: Number,
+      required: true,
+    },
+    championPoints: {
+      type: Number,
+      required: true,
+    },
+  },
+  { _id: false, timestamps: true },
+);
+const matchDataSchema = new Schema(
+  {
+    matchId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    queueId: {
+      type: Number,
+      required: true,
+    },
+    championName: {
+      type: String,
+      required: true,
+    },
+    deaths: {
+      type: Number,
+      required: true,
+    },
+    kills: {
+      type: Number,
+      required: true,
+    },
+    assists: {
+      type: Number,
+      required: true,
+    },
+    teamEarlySurrendered: {
+      type: Boolean,
+      default: false,
+    },
+    win: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  { _id: false, timestamps: true },
+);
 const rankedQueueSchema = new Schema(
   {
     queueType: {
@@ -83,6 +134,8 @@ const summonerSchema = new Schema(
       required: true,
     },
     rankedStats: { type: [rankedQueueSchema], default: [] },
+    matchHistory: { type: [matchDataSchema], default: [] },
+    topChampions: { type: [topChampionSchema], default: [] },
   },
   {
     timestamps: true,
