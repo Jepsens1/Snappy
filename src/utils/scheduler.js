@@ -13,7 +13,7 @@ function startScheduler(client) {
     start: true,
   });
   const jobUpdateChampions = CronJob.from({
-    cronTime: "* * * * *",
+    cronTime: "0 6 * * *",
     onTick: async function () {
       console.log("[CRON] Update Champions");
       await updateChampions();
