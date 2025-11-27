@@ -7,7 +7,6 @@ function startScheduler(client) {
   const jobReminder = CronJob.from({
     cronTime: "* * * * *",
     onTick: async function () {
-      console.log("[CRON] Minute Reminder");
       await checkForReminders(client);
     },
     start: true,
@@ -28,6 +27,7 @@ async function checkForReminders(client) {
       expiresAt: { $lte: now },
     });
     for (const reminder of expired) {
+      console.log("[CRON] Reminder JOB");
       const user = await client.users.fetch(reminder.userId);
       const embed = new EmbedBuilder()
         .setTitle("Reminder")
@@ -39,7 +39,7 @@ async function checkForReminders(client) {
         });
       await user.send({ embeds: [embed] });
       await reminder.deleteOne();
-      console.log("Reminder was sent out and removed from DB");
+      console.log("[CRON] Reminder was sent out and removed from DB");
     }
   } catch (error) {
     console.error("Unexpected error during cron reminder", error);

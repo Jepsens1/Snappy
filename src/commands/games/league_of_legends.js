@@ -6,14 +6,47 @@ const {
   getSummonerMatchHistory,
 } = require("../../utils/fetch_league_information");
 const { EmbedBuilder } = require("discord.js");
-
+const LeagueOfLegends = require("../../models/league_of_legends_schema");
+const { Client } = require("discord.js");
 function formatTier(tier) {
   if (!tier || tier === "UNRANKED") return "Unranked";
   if (["MASTER", "GRANDMASTER", "CHALLENGER"].includes(tier)) return tier;
 
   return tier.charAt(0) + tier.slice(1).toLowerCase();
 }
+async function formatQueueIdToGame(match) {
+  const doc = await LeagueOfLegends.findOne(
+    { "queues.queueId": match.queueId },
+    { "queues.$": 1 },
+  ).lean();
 
+  if (!doc || !doc.queues || doc.queues.length === 0) {
+    return "Unknown Gamemode";
+  }
+
+  return doc.queues[0].description || "Custom Game";
+}
+
+async function convertChampionIdToName(id) {
+  const doc = await LeagueOfLegends.findOne(
+    { "champions.key": id },
+    { "champions.$": 1 },
+  ).lean();
+  if (!doc || !doc.champions || doc.champions.length === 0) {
+    return "Unknown Champion";
+  }
+
+  return doc.champions[0].id || "Unknown Champion";
+}
+/**
+ * @param {Client} client
+ */
+async function getChampionEmojiByName(client, champName) {
+  const emojisCollection = await client.application.emojis.fetch();
+  for (const emoji of emojisCollection.values()) {
+    if (emoji.name === `lol_${champName}`) return emoji;
+  }
+}
 /**
  * Creates Discord embed with Summoner match history
  * Shows:
@@ -22,7 +55,7 @@ function formatTier(tier) {
  * @param {Summoner} player
  * @returns {EmbedBuilder}
  */
-function createHistoryEmbed(player) {
+async function createHistoryEmbed(player, interaction) {
   const wins = player.matchHistory?.filter(
     (match) => match.win === true,
   ).length;
@@ -49,16 +82,19 @@ function createHistoryEmbed(player) {
   if (!player.matchHistory || player.matchHistory.length === 0) {
     embed.addFields({ name: "Match History", value: "No Data", inline: false });
   } else {
-    const matchStats = player.matchHistory
-      .map((match, index) => {
-        //TODO do proper gameType and champion picture
-        const gameType = match.queueId === 420 ? "Ranked" : "Normal";
-        return `**${index + 1}.** ${gameType} - ${match.championName} - **${match.kills}/${match.deaths}/${match.assists}** - ${match.win ? "✅" : "❌"} ${match.teamEarlySurrendered ? "❌ Early surrender" : ""}`;
-      })
-      .join("\n");
+    const matchStats = await Promise.all(
+      player.matchHistory.map(async (match, index) => {
+        const gameType = await formatQueueIdToGame(match);
+        const emoji = await getChampionEmojiByName(
+          interaction.client,
+          match.championName,
+        );
+        return `**${index + 1}.** ${emoji} - **${match.kills}/${match.deaths}/${match.assists}** - ${match.win ? "✅" : "❌"} ${match.teamEarlySurrendered ? "❌ Early surrender" : ""} - ${gameType}`;
+      }),
+    );
     embed.addFields({
       name: "**Match History**",
-      value: matchStats,
+      value: matchStats.join("\n\n"),
     });
   }
   return embed;
@@ -74,7 +110,7 @@ function createHistoryEmbed(player) {
  * * @param {Summoner} player
  * @returns {EmbedBuilder}
  */
-function createStatsEmbed(player) {
+async function createStatsEmbed(player, interaction) {
   const wins = player.matchHistory?.filter(
     (match) => match.win === true,
   ).length;
@@ -130,16 +166,17 @@ function createStatsEmbed(player) {
         });
       });
   }
-  const topChamps = player.topChampions
-    .map((champ, index) => {
-      // TODO display champion picture
-      return `**${index + 1}.** ${champ.championId} - ${champ.championPoints.toLocaleString("en-US")} points`;
-    })
-    .join("\n");
+  const topChamps = await Promise.all(
+    player.topChampions.map(async (champ, index) => {
+      const champName = await convertChampionIdToName(champ.championId);
+      const emoji = await getChampionEmojiByName(interaction.client, champName);
+      return `**${index + 1}.** ${emoji} - ${champ.championPoints.toLocaleString("en-US")} points`;
+    }),
+  );
 
   embed.addFields({
     name: "**Top Champions**",
-    value: topChamps || "No data",
+    value: topChamps.join("\n") || "No data",
   });
   return embed;
 }
@@ -264,13 +301,13 @@ module.exports = {
         const summoner = interaction.options.getString("summoner");
         const tagLine = interaction.options.getString("tagline");
         const player = await getSummonerStats(summoner, tagLine);
-        const embed = createStatsEmbed(player);
+        const embed = await createStatsEmbed(player, interaction);
         await interaction.editReply({ embeds: [embed] });
       } else if (subcommand === "history") {
         const summoner = interaction.options.getString("summoner");
         const tagLine = interaction.options.getString("tagline");
         const player = await getSummonerMatchHistory(summoner, tagLine);
-        const embed = createHistoryEmbed(player);
+        const embed = await createHistoryEmbed(player, interaction);
         await interaction.editReply({ embeds: [embed] });
       }
     } catch (error) {
