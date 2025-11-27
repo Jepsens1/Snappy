@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const Remind = require("../models/remind_schema");
-const { updateChampions } = require("../utils/champion");
+const { uploadChampionEmojis } = require("../utils/uploadChampionEmoji");
 const { CronJob } = require("cron");
 
 function startScheduler(client) {
@@ -16,7 +16,7 @@ function startScheduler(client) {
     cronTime: "0 6 * * *",
     onTick: async function () {
       console.log("[CRON] Update Champions");
-      await updateChampions();
+      await uploadChampionEmojis(client);
     },
     start: true,
   });
