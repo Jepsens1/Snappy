@@ -1,4 +1,4 @@
-const { updateChampions } = require("../utils/champion");
+const LeagueService = require("../services/league-service");
 const LeagueOfLegends = require("../models/league_of_legends_schema");
 const { Client } = require("discord.js");
 
@@ -6,7 +6,8 @@ const { Client } = require("discord.js");
  * @param {Client} client
  */
 async function uploadChampionEmojis(client) {
-  const { needsUpdate, version } = await updateChampions();
+  const leagueService = new LeagueService();
+  const { needsUpdate, version } = await leagueService.getDataDragonData();
   // 1. Return if no new updates are available
   if (!needsUpdate) {
     console.log("Champion Emojis are already up to date");
@@ -96,6 +97,7 @@ async function uploadChampionEmojis(client) {
   console.log(
     `Done! Deleted: ${deleted} | Created: ${created} | Updated: ${updated}`,
   );
+  await client.application.emojis.fetch();
 }
 
 module.exports = { uploadChampionEmojis };

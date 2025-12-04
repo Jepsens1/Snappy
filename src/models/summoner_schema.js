@@ -11,7 +11,7 @@ const topChampionSchema = new Schema(
       required: true,
     },
   },
-  { _id: false, timestamps: true },
+  { _id: false },
 );
 const matchDataSchema = new Schema(
   {
@@ -49,7 +49,7 @@ const matchDataSchema = new Schema(
       required: true,
     },
   },
-  { _id: false, timestamps: true },
+  { _id: false },
 );
 const rankedQueueSchema = new Schema(
   {
@@ -103,7 +103,7 @@ const rankedQueueSchema = new Schema(
       default: 0,
     },
   },
-  { _id: false, timestamps: true },
+  { _id: false },
 );
 
 const summonerSchema = new Schema(
@@ -136,6 +136,10 @@ const summonerSchema = new Schema(
     rankedStats: { type: [rankedQueueSchema], default: [] },
     matchHistory: { type: [matchDataSchema], default: [] },
     topChampions: { type: [topChampionSchema], default: [] },
+    lastBasicUpdate: { type: Date, default: null },
+    lastMatchHistoryUpdate: { type: Date, default: null },
+    lastRankedStatsUpdate: { type: Date, default: null },
+    lastMasteryUpdate: { type: Date, default: null },
   },
   {
     timestamps: true,
