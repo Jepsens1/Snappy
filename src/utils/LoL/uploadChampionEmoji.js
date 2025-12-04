@@ -1,5 +1,5 @@
-const LeagueService = require("../services/league-service");
-const LeagueOfLegends = require("../models/league_of_legends_schema");
+const LeagueService = require("../../services/LoL/league-service");
+const LeagueOfLegends = require("../../models/LoL/league_of_legends_schema");
 const { Client } = require("discord.js");
 
 /**
@@ -107,7 +107,6 @@ async function uploadChampionEmojis(client) {
   console.log(
     `Done! Deleted: ${deleted} | Created: ${created} | Updated: ${updated}`,
   );
-  await client.application.emojis.fetch();
 }
 
 module.exports = { uploadChampionEmojis };

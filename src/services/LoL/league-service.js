@@ -1,6 +1,6 @@
-const RiotApiClient = require("../utils/riot-api-client");
-const Summoner = require("../models/summoner_schema");
-const LeagueOfLegends = require("../models/league_of_legends_schema");
+const RiotApiClient = require("../../utils/LoL/riot-api-client");
+const Summoner = require("../../models/LoL/summoner_schema");
+const LeagueOfLegends = require("../../models/LoL/league_of_legends_schema");
 
 class LeagueService {
   constructor() {

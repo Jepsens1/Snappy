@@ -1,4 +1,4 @@
-const ApiClient = require("./api-client");
+const ApiClient = require("../api/api-client");
 
 function routeServerValues(region) {
   switch (region) {

@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const Remind = require("../models/remind_schema");
-const { uploadChampionEmojis } = require("../utils/uploadChampionEmoji");
+const { uploadChampionEmojis } = require("../utils/LoL/uploadChampionEmoji");
 const { CronJob } = require("cron");
 
 function startScheduler(client) {

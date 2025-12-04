@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, InteractionContextType } = require("discord.js");
 const { Client } = require("discord.js");
-const LeagueService = require("../../services/league-service");
+const LeagueService = require("../../services/LoL/league-service");
 const createStatsEmbed = require("../../embeds/LoL/leagueStatsEmbed");
 const createMatchHistoryEmbed = require("../../embeds/LoL/leagueMatchHistoryEmbed");
 module.exports = {
