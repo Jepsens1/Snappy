@@ -63,3 +63,13 @@ for (const file of eventFiles) {
 })();
 // Log in to Discord with bot token
 client.login(process.env.BOT_TOKEN);
+
+client.rest.on("rateLimited", (info) => {
+  console.warn("Rate limit hit:", {
+    method: info.method,
+    limit: info.limit,
+    timeToReset: info.timeToReset,
+    global: info.global,
+    retryAfter: info.retryAfter,
+  });
+});

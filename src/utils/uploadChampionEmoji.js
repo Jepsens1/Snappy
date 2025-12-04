@@ -37,29 +37,35 @@ async function uploadChampionEmojis(client) {
   let deleted = 0;
 
   // 3. Delete outdated application emojis
+  const deletedPromises = [];
   for (const [champName, emoji] of existingEmojiMap) {
     const exists = champions.some((c) => c.id.toLowerCase() === champName);
     if (!exists) {
-      try {
-        // Delete old champion emoji
-        await emoji.delete();
-        console.log(`Deleted old champion emoji (${champName})`);
-        deleted++;
-      } catch (error) {
-        console.warn(
-          `Failed to delete application emoji (${emoji.name})`,
-          error.message,
-        );
-      }
+      // Delete old champion emoji
+      deletedPromises.push(
+        emoji
+          .delete()
+          .then(() => {
+            console.log(`Deleted old champion emoji (${champName})`);
+            deleted++;
+          })
+          .catch((error) => {
+            console.warn(
+              `Failed to delete application emoji (${emoji.name})`,
+              error.message,
+            );
+          }),
+      );
     }
   }
+  await Promise.allSettled(deletedPromises);
+  console.log(`Finished deleting old emojis (${deleted} deleted)`);
   // 4. Update or create new emojis
-  for (const champ of champions) {
+  const emojiPromises = champions.map(async (champ) => {
     const cleanName = champ.id.toLowerCase();
     const emojiName = `${PREFIX}${champ.id}`;
 
     const existing = existingEmojiMap.get(cleanName);
-
     // Update existing champion emoji (If RIOT has change icon)
     if (existing) {
       try {
@@ -71,6 +77,7 @@ async function uploadChampionEmojis(client) {
         });
         console.log(`Updated (${newEmoji.name})`);
         updated++;
+        return newEmoji;
       } catch (error) {
         console.warn(
           `Failed to update champion emoji (${emojiName})`,
@@ -86,14 +93,17 @@ async function uploadChampionEmojis(client) {
         });
         console.log(`Created (${newEmoji.name})`);
         created++;
+        return newEmoji;
       } catch (error) {
         console.warn(
           `Failed to create new champion emoji (${emojiName})`,
           error.message,
         );
+        return null;
       }
     }
-  }
+  });
+  const result = await Promise.allSettled(emojiPromises);
   console.log(
     `Done! Deleted: ${deleted} | Created: ${created} | Updated: ${updated}`,
   );
