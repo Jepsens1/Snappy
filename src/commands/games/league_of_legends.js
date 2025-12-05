@@ -16,14 +16,14 @@ module.exports = {
         .addStringOption((option) =>
           option
             .setName("summoner")
-            .setDescription("player to search for name#000")
+            .setDescription("player name")
             .setMaxLength(50)
             .setRequired(true),
         )
         .addStringOption((option) =>
           option
             .setName("tagline")
-            .setDescription("player tagline")
+            .setDescription("player tagline ###")
             .setRequired(true)
             .setMaxLength(5),
         ),
@@ -35,14 +35,14 @@ module.exports = {
         .addStringOption((option) =>
           option
             .setName("summoner")
-            .setDescription("player to search for name#000")
+            .setDescription("player name")
             .setMaxLength(50)
             .setRequired(true),
         )
         .addStringOption((option) =>
           option
             .setName("tagline")
-            .setDescription("player tagline")
+            .setDescription("player tagline ###")
             .setRequired(true)
             .setMaxLength(5),
         ),
