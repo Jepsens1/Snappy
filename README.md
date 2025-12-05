@@ -36,6 +36,7 @@ MONGODB_URI=<mongodb connection string>
 BOT_TOKEN=
 GUILD_ID=
 CLIENT_ID=<Discord bot client id>
+LEAGUE_OF_LEGENDS_API_KEY=
 ```
 
 # Deploy commands to your guild
@@ -81,8 +82,8 @@ Available commands:
 - `/coinflip` - Flip a coin
 - `/lol build` - Get build stats for a champion for different roles ***In Progress***
 - `/lol counters` - Get counters for a champion ***In Progress***
-- `/lol stats` - Get essential stats for a player ***In Progress***
-- `/lol rank` - Get rank for a player ***In Progress***
+- `/lol stats` - Get Profile, Summoner Level, Region, Ranked stats for Solo/Duo & Ranked Flex, Last 10 games
+- `/lol history` - Get Profile, Extended last 10 games stats
 - `/cs2 steamprofile` - Get essential stats for player ***In Progress***
 - `/cs2 faceit` - Get essential stats for a faceit player ***In Progress***
 - `/remind create` - Create a reminder that will be received in DM
