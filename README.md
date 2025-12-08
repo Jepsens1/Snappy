@@ -37,6 +37,7 @@ BOT_TOKEN=
 GUILD_ID=
 CLIENT_ID=<Discord bot client id>
 LEAGUE_OF_LEGENDS_API_KEY=
+STEAM_API_KEY=
 ```
 
 # Deploy commands to your guild
