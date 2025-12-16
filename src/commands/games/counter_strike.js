@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, InteractionContextType } = require("discord.js");
 const SteamService = require("../../services/CS2/steam-service");
 const createSteamEmbed = require("../../embeds/CS2/steamProfileEmbed");
+const FaceitService = require("../../services/CS2/faceit-service");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("cs2")
@@ -44,7 +45,10 @@ module.exports = {
         await interaction.editReply({ embeds: [embed] });
       } else if (subcommand === "faceit") {
         const nickname = interaction.options.getString("nickname");
-        await interaction.editReply(`Hello ${nickname}`);
+        const faceitService = new FaceitService();
+        const profile = await faceitService.getFaceitProfile(nickname);
+        console.log(profile);
+        await interaction.editReply(`Hello ${profile.nickname}`);
       }
     } catch (error) {
       await interaction.editReply(error.message);
