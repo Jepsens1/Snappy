@@ -38,6 +38,7 @@ GUILD_ID=
 CLIENT_ID=<Discord bot client id>
 LEAGUE_OF_LEGENDS_API_KEY=
 STEAM_API_KEY=
+FACEIT_API_KEY=
 ```
 
 # Deploy commands to your guild
@@ -85,8 +86,8 @@ Available commands:
 - `/lol counters` - Get counters for a champion ***In Progress***
 - `/lol stats` - Get Profile, Summoner Level, Region, Ranked stats for Solo/Duo & Ranked Flex, Last 10 games
 - `/lol history` - Get Profile, Extended last 10 games stats
-- `/cs2 steamprofile` - Get essential stats for player ***In Progress***
-- `/cs2 faceit` - Get essential stats for a faceit player ***In Progress***
+- `/cs2 steamprofile` - Get essential stats for player
+- `/cs2 faceit` - Get essential stats for a faceit player
 - `/remind create` - Create a reminder that will be received in DM
 - `/remind list` - Displays all reminder created
 - `/remind remove` - Remove all reminders

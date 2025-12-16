@@ -67,7 +67,7 @@ function createFaceitEmbed(player) {
   embed.addFields(
     {
       name: "Avg Kills / HS%",
-      value: `**${averageStats.averageKills} / ${averageStats.averageHsPercentage}**`,
+      value: `**${averageStats.averageKills} / ${averageStats.averageHsPercentage}%**`,
       inline: true,
     },
     {

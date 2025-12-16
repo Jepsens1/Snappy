@@ -36,13 +36,15 @@ class FaceitService {
     } else {
       data = await this.faceitClient.getPlayerDetailsByNickName(nickname);
     }
+    const faceit_url = data.faceit_url.replace("{lang}", "en");
+
     return {
       player_id: data.player_id,
       nickname: data.nickname,
       avatar: data.avatar,
       steamId: data.steam_id_64,
       steam_nickname: data.steam_nickname,
-      faceit_url: data.faceit_url,
+      faceit_url: faceit_url,
       activated_at: data.activated_at,
       cs2: {
         region: data.games.cs2.region || null,
