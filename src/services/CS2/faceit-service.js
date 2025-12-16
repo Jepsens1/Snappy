@@ -3,7 +3,7 @@ const FaceitProfile = require("../../models/CS2/faceit_schema");
 class FaceitService {
   constructor() {
     this.faceitClient = new FaceitClient();
-    this.cacheTimer = 5;
+    this.cacheTimer = 10;
   }
 
   //#region Map Functions
@@ -53,6 +53,54 @@ class FaceitService {
       },
     };
   }
+
+  /**
+   * @param {String} player_id
+   * Maps Faceit lifetime cs2 stats
+   * To object with following fields:
+   *   - totalMatches: Number
+   *   - wins: Number
+   *   - winrate_percentage: Number
+   *   - longest_win_streak: Number
+   *   - current_win_streak: Number
+   */
+  async mapFaceitLifetimeStatsCS2(player_id) {
+    const data = await this.faceitClient.getPlayerLifetimeStats(player_id);
+    return {
+      totalMatches: data.lifetime.Matches,
+      wins: data.lifetime.Wins,
+      winrate_percentage: data.lifetime["Win Rate %"],
+      longest_win_streak: data.lifetime["Longest Win Streak"],
+      current_win_streak: data.lifetime["Current Win Streak"],
+    };
+  }
+
+  /**
+   *@param {String} player_id
+   * Maps Faceit last 20 games
+   * To object with following fields:
+   *   - kills: Number
+   *   - hs_percentage: Number
+   *   - match_result: Number
+   *   - kd_ratio: Number
+   *   - kr_ratio: Number
+   *   - adr_ratio: Number
+   */
+  async mapFaceitMatchHistoryCS2(player_id) {
+    const data = await this.faceitClient.getPlayerLast20Games(player_id);
+    const items = data.items;
+    if (!items) {
+      return [];
+    }
+    return items.map((entry) => ({
+      kills: entry.stats.Kills,
+      hs_percentage: entry.stats["Headshots %"],
+      match_result: entry.stats.Result,
+      kd_ratio: entry.stats["K/D Ratio"],
+      kr_ratio: entry.stats["K/R Ratio"],
+      adr_ratio: entry.stats.ADR,
+    }));
+  }
   //#endregion
 
   /**
@@ -96,7 +144,11 @@ class FaceitService {
       );
       return faceitProfile;
     }
-    const profile = await this.mapFaceitProfile(null, faceitProfile.player_id);
+    const [profile, lifetimeStats, matchHistory] = await Promise.all([
+      this.mapFaceitProfile(null, faceitProfile.player_id),
+      this.mapFaceitLifetimeStatsCS2(faceitProfile.player_id),
+      this.mapFaceitMatchHistoryCS2(faceitProfile.player_id),
+    ]);
 
     faceitProfile.nickname = profile.nickname;
     faceitProfile.avatar = profile.avatar;
@@ -104,8 +156,10 @@ class FaceitService {
     faceitProfile.steam_nickname = profile.steam_nickname;
     faceitProfile.faceit_url = profile.faceit_url;
     faceitProfile.activated_at = profile.activated_at;
-    faceitProfile.cs2 = profile.cs2;
-
+    faceitProfile.faceit_stats_cs2 = profile.cs2;
+    faceitProfile.lifetime_stats_cs2 = lifetimeStats;
+    faceitProfile.match_history_cs2 = matchHistory;
+    faceitProfile.set("updatedAt", new Date());
     await faceitProfile.save();
     return faceitProfile;
   }
@@ -116,6 +170,10 @@ class FaceitService {
    */
   async _createFaceitProfile(nickname) {
     const profile = await this.mapFaceitProfile(nickname, null);
+    const [lifetimeStats, matchHistory] = await Promise.all([
+      this.mapFaceitLifetimeStatsCS2(profile.player_id),
+      this.mapFaceitMatchHistoryCS2(profile.player_id),
+    ]);
     const faceitProfile = new FaceitProfile({
       player_id: profile.player_id,
       nickname: profile.nickname,
@@ -124,7 +182,9 @@ class FaceitService {
       steam_nickname: profile.steam_nickname,
       faceit_url: profile.faceit_url,
       activated_at: profile.activated_at,
-      cs2: profile.cs2,
+      faceit_stats_cs2: profile.cs2,
+      lifetime_stats_cs2: lifetimeStats,
+      match_history_cs2: matchHistory,
     });
     await faceitProfile.save();
     return faceitProfile;

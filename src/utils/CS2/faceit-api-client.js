@@ -20,6 +20,21 @@ class FaceitClient extends ApiClient {
     const endpoint = `/players/${player_id}`;
     return await this.get(endpoint);
   }
+
+  /**
+   * @param {String} player_id
+   */
+  async getPlayerLifetimeStats(player_id) {
+    const endpoint = `/players/${player_id}/stats/cs2`;
+    return await this.get(endpoint);
+  }
+  /**
+   * @param {String} player_id
+   */
+  async getPlayerLast20Games(player_id) {
+    const endpoint = `/players/${player_id}/games/cs2/stats`;
+    return await this.get(endpoint);
+  }
 }
 
 module.exports = FaceitClient;
