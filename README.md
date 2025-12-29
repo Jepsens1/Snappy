@@ -1,11 +1,11 @@
 # Snappy: The All-in-One Discord Bot
-A Discord bot that provides CS2 steam stats • CS2 faceit stats • LoL build, counters, player stats and rank • Moderation • Fun Commands • Dice rolls • and more
+A Discord bot that provides CS2 steam stats • CS2 faceit stats • LoL player stats & Match history • Moderation • Fun Commands • Dice rolls • and more
 
 ## Motivation
 There are a lot of Discord bots out there, but they do not meet some of the requirements that i need. Snappy is the Discord Bot you need for getting relevant information in games like. CS2 and LoL.
 I myself play a lot Counter-Strike, and i was frustrated by my inability to easily lookup opponents stats such as: Hours played, Faceit Rank, K/D, ADR and HS%.
 Or when i played League of Legends having different programs or tabs open
-to see which build is best for Darius Toplane or which champion counters the opponent best. So i built Snappy and now i can lookup relevant information with ease!
+to see opponents stats & match history. So i built Snappy and now i can lookup relevant information with ease!
 
 ## 🚀 Quick Start
 
@@ -82,8 +82,6 @@ Available commands:
 - `/fact` - Display today's fact
 - `/meme ` - Display a random meme
 - `/coinflip` - Flip a coin
-- `/lol build` - Get build stats for a champion for different roles ***In Progress***
-- `/lol counters` - Get counters for a champion ***In Progress***
 - `/lol stats` - Get Profile, Summoner Level, Region, Ranked stats for Solo/Duo & Ranked Flex, Last 10 games
 - `/lol history` - Get Profile, Extended last 10 games stats
 - `/cs2 steamprofile` - Get essential stats for player
@@ -100,14 +98,14 @@ Available commands:
 
 ## Examples
 
-Get Darius Toplane build 
+Get LoL Player Stats
 ```bash
-/lol build Darius Top
+/lol stats <summoner> <tagline>
 ```
 
-Get Darius counters 
+Get LoL Match hisyory
 ```bash
-/lol counter Darius
+/lol history <summoner> <tagline>
 ```
 
 Get steam player stats for CS2
@@ -116,7 +114,7 @@ Get steam player stats for CS2
 ```
 Get faceit player stats for CS2
 ```bash
-/cs2 faceit <steamid>
+/cs2 faceit <faceit nickname>
 ```
 
 
