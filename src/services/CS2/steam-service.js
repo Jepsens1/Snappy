@@ -1,5 +1,5 @@
 const SteamClient = require("../../utils/CS2/steam-api-client");
-const SteamProfile = require("../../models/CS2/steam_schema");
+const SteamProfile = require("../../models/CS2/steam-schema");
 class SteamService {
   constructor() {
     this.steamClient = new SteamClient();

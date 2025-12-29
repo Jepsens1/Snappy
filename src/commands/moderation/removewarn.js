@@ -9,8 +9,8 @@ const {
   ActionRowBuilder,
   StringSelectMenuBuilder,
 } = require("discord.js");
-const Warning = require("../../models/warning_schema");
-const { handlePermissionRights } = require("../../utils/checkPermissions");
+const Warning = require("../../models/warning-schema");
+const { handlePermissionRights } = require("../../utils/check-permissions");
 /**
  * @param {import('discord.js').Interaction} interaction
  * @param {import('discord.js').GuildMember} member

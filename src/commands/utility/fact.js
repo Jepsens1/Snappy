@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, InteractionContextType } = require("discord.js");
-const fetchTodaysFact = require("../../utils/fetch_todays_fact");
+const fetchTodaysFact = require("../../utils/fetch-todays-fact.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("fact")

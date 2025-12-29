@@ -4,7 +4,7 @@ const {
   PermissionFlagsBits,
   MessageFlags,
 } = require("discord.js");
-const AutoRole = require("../../models/autorole_schema");
+const AutoRole = require("../../models/autorole-schema");
 /**
  * @param {import("discord.js").Interaction} interaction
  */

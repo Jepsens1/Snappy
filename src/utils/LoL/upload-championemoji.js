@@ -1,5 +1,5 @@
 const LeagueService = require("../../services/LoL/league-service");
-const LeagueOfLegends = require("../../models/LoL/league_of_legends_schema");
+const LeagueOfLegends = require("../../models/LoL/league-of-legends-schema");
 const { Client } = require("discord.js");
 
 /**

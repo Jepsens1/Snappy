@@ -1,5 +1,5 @@
 const { EmbedBuilder, Client } = require("discord.js");
-const LeagueOfLegends = require("../../models/LoL/league_of_legends_schema");
+const LeagueOfLegends = require("../../models/LoL/league-of-legends-schema");
 /**
  * Scaffold base layer for league embed
  * @param {Summoner} player

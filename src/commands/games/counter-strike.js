@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, InteractionContextType } = require("discord.js");
 const SteamService = require("../../services/CS2/steam-service");
-const createSteamEmbed = require("../../embeds/CS2/steamProfileEmbed");
+const createSteamEmbed = require("../../embeds/CS2/steam-profile-embed");
 const FaceitService = require("../../services/CS2/faceit-service");
-const createFaceitEmbed = require("../../embeds/CS2/faceitProfileEmbed");
+const createFaceitEmbed = require("../../embeds/CS2/faceit-profile-embed");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("cs2")

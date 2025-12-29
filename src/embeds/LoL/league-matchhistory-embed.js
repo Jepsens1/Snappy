@@ -2,7 +2,7 @@ const {
   createBaseEmbed,
   getChampionEmoji,
   getQueueType,
-} = require("../LoL/leagueBaseEmbed");
+} = require("../LoL/league-base-embed");
 
 /**
  * Creates Discord embed with Summoner match history

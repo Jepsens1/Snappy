@@ -1,5 +1,5 @@
 const FaceitClient = require("../../utils/CS2/faceit-api-client");
-const FaceitProfile = require("../../models/CS2/faceit_schema");
+const FaceitProfile = require("../../models/CS2/faceit-schema");
 class FaceitService {
   constructor() {
     this.faceitClient = new FaceitClient();

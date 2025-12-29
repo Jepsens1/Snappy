@@ -4,7 +4,7 @@ const {
   PermissionFlagsBits,
   MessageFlags,
 } = require("discord.js");
-const { handlePermissionRights } = require("../../utils/checkPermissions");
+const { handlePermissionRights } = require("../../utils/check-permissions");
 
 module.exports = {
   data: new SlashCommandBuilder()

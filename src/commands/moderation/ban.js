@@ -7,7 +7,7 @@ const {
   ButtonStyle,
   MessageFlags,
 } = require("discord.js");
-const { handlePermissionRights } = require("../../utils/checkPermissions");
+const { handlePermissionRights } = require("../../utils/check-permissions");
 
 const CONFIRM = "confirm";
 const CANCEL = "cancel";

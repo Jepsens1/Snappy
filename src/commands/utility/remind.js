@@ -5,7 +5,7 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 
-const Remind = require("../../models/remind_schema");
+const Remind = require("../../models/remind-schema");
 const chrono = require("chrono-node");
 
 /**

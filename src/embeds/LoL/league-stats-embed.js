@@ -1,5 +1,5 @@
 const { Client } = require("discord.js");
-const { createBaseEmbed, getChampionEmoji } = require("./leagueBaseEmbed");
+const { createBaseEmbed, getChampionEmoji } = require("./league-base-embed");
 
 const REGIONS = new Map([
   ["euw1", "Europe West"],

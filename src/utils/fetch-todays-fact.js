@@ -1,4 +1,4 @@
-const Fact = require("../models/fact_schema");
+const Fact = require("../models/fact-schema");
 
 /**
  * @returns {Promise<string | undefined>}

@@ -4,7 +4,7 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 
-const fetchRandomMeme = require("../../utils/fetch_random_meme");
+const fetchRandomMeme = require("../../utils/fetch-random-meme");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("meme")

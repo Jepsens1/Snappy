@@ -5,7 +5,7 @@ const {
   MessageFlags,
 } = require("discord.js");
 const pJson = require("../../../package.json");
-const formatTime = require("../../utils/formatTime");
+const formatTime = require("../../utils/format-time");
 
 module.exports = {
   data: new SlashCommandBuilder()

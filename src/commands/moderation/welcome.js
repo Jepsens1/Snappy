@@ -5,7 +5,7 @@ const {
   MessageFlags,
 } = require("discord.js");
 
-const Welcome = require("../../models/welcome_schema");
+const Welcome = require("../../models/welcome-schema");
 
 /**
  * @param {import("discord.js").Interaction} interaction
