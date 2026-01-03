@@ -214,10 +214,10 @@ class SteamService {
       throw new Error(`Steam profile ${steamId} not found`);
     }
     if (error.message.includes("429")) {
-      throw new Error(`Rate limit`);
+      throw new Error(`Steam API hit rate limit, try again in 1 second`);
     }
     if (error.message.includes("403")) {
-      throw new Error(`API-key expired or wrong`);
+      throw new Error(`Steam API-key expired or wrong`);
     }
     console.error("[SteamService] Unexpected Steam Error:", error);
     throw error;

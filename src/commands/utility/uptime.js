@@ -1,4 +1,4 @@
-const formatTime = require("../../utils/formatTime");
+const formatTime = require("../../utils/format-time");
 const {
   SlashCommandBuilder,
   InteractionContextType,

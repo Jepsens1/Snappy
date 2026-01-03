@@ -1,9 +1,19 @@
+const { default: Bottleneck } = require("bottleneck");
 const ApiClient = require("../api/api-client");
 
 class SteamClient extends ApiClient {
   constructor() {
     const baseUrl = "https://api.steampowered.com";
-    super(baseUrl);
+    super(
+      baseUrl,
+      {},
+      {
+        rateLimiter: new Bottleneck({
+          minTime: 250,
+          maxConcurrent: 3,
+        }),
+      },
+    );
     this.STEAM_API_KEY = process.env.STEAM_API_KEY;
   }
 

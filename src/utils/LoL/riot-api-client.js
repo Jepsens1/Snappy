@@ -1,3 +1,4 @@
+const { default: Bottleneck } = require("bottleneck");
 const ApiClient = require("../api/api-client");
 
 function routeServerValues(region) {
@@ -6,11 +7,11 @@ function routeServerValues(region) {
     case "br1":
     case "la1":
     case "la2":
-      return `https://americas.api.riotgames.com"`;
+      return "https://americas.api.riotgames.com";
 
     case "kr":
     case "jp1":
-      return `https://asia.api.riotgames.com`;
+      return "https://asia.api.riotgames.com";
 
     case "eun1":
     case "euw1":
@@ -33,7 +34,20 @@ class RiotApiClient extends ApiClient {
     const region = "euw1";
     const continental = routeServerValues(region);
     const baseUrl = `https://${region}.api.riotgames.com`;
-    super(baseUrl, { "X-Riot-Token": RIOT_API_KEY });
+    super(
+      baseUrl,
+      { "X-Riot-Token": RIOT_API_KEY },
+      {
+        // Rate limit
+        // 20 req/sec, 100 req/2 minutes
+        rateLimiter: new Bottleneck({
+          minTime: 55, // Add margin (55 ms -> 18 req/sec)
+          reservoir: 100,
+          reservoirRefreshAmount: 100,
+          reservoirRefreshInterval: 120 * 1000, // 2 minutes
+        }),
+      },
+    );
     this.region = region;
     this.continental = continental;
   }
@@ -78,7 +92,7 @@ class RiotApiClient extends ApiClient {
    */
   async getMatchIdsByPuuid(puuid) {
     const endpoint = `${this.continental}/lol/match/v5/matches/by-puuid/${puuid}/ids`;
-    return await this.get(endpoint, { start: 0, count: 10 });
+    return await this.get(endpoint, { start: 0, count: 20 });
   }
 
   /**

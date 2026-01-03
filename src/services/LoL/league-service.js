@@ -308,10 +308,10 @@ class LeagueService {
       throw new Error(`Summoner ${summonerName}#${tag} not found`);
     }
     if (error.message.includes("429")) {
-      throw new Error(`Rate limit`);
+      throw new Error(`Riot API hit rate limit, try again later`);
     }
     if (error.message.includes("403")) {
-      throw new Error(`API-key expired eller wrong`);
+      throw new Error(`Riot API API-key expired or wrong`);
     }
     console.error("[LeagueService] Unexpected RIOT Error:", error);
     throw error;

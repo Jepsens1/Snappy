@@ -1,9 +1,20 @@
+const { default: Bottleneck } = require("bottleneck");
 const ApiClient = require("../api/api-client");
 
 class FaceitClient extends ApiClient {
   constructor() {
     const baseUrl = "https://open.faceit.com/data/v4";
-    super(baseUrl, { Authorization: `Bearer ${process.env.FACEIT_API_KEY}` });
+    super(
+      baseUrl,
+      { Authorization: `Bearer ${process.env.FACEIT_API_KEY}` },
+      {
+        rateLimiter: new Bottleneck({
+          // Rate limit 10 req/sec
+          minTime: 100,
+          maxConcurrent: 5,
+        }),
+      },
+    );
   }
 
   /**

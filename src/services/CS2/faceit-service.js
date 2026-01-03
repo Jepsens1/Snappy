@@ -197,10 +197,10 @@ class FaceitService {
       throw new Error(`Faceit profile ${nickname} not found`);
     }
     if (error.message.includes("429")) {
-      throw new Error(`Rate limit`);
+      throw new Error(`Faceit API hit rate limit, try again in 1 second`);
     }
     if (error.message.includes("403")) {
-      throw new Error(`API-key expired or wrong`);
+      throw new Error(`Faceit API-key expired or wrong`);
     }
     console.error("[FaceitService] Unexpected Faceit Error:", error);
     throw error;
