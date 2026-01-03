@@ -76,4 +76,6 @@ const steamProfileSchema = new Schema(
   { timestamps: true },
 );
 
+// Remove documents with no activity after 7 days
+steamProfileSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 604800 });
 module.exports = model("SteamProfile", steamProfileSchema);

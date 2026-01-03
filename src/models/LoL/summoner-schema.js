@@ -146,6 +146,8 @@ const summonerSchema = new Schema(
   },
 );
 
+// Remove documents with no activity after 7 days
+summonerSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 604800 });
 summonerSchema.index(
   { gameName: 1, tagLine: 1 },
   { collation: { locale: "en", strength: 2 } },

@@ -127,4 +127,6 @@ const faceitSchema = new Schema(
   { timestamps: true },
 );
 
+// Remove documents with no activity after 7 days
+faceitSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 604800 });
 module.exports = model("FaceitProfile", faceitSchema);
