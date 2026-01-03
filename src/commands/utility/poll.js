@@ -158,10 +158,19 @@ module.exports = {
           });
           return;
         }
-        await targetMessage.poll.end();
-        await interaction.editReply({
-          content: "Poll ended :x:",
-        });
+        const hasManageMessages = interaction.member.permissions.has(
+          PermissionFlagsBits.ManageMessages,
+        );
+        if (hasManageMessages) {
+          await targetMessage.poll.end();
+          await interaction.editReply({
+            content: "Poll ended :x:",
+          });
+        } else {
+          await interaction.editReply(
+            "You can only stop polls if you have 'Manage Messages' permission",
+          );
+        }
       }
     } catch (error) {
       console.error("Unexpected error during /poll", error);
