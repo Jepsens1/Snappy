@@ -10,13 +10,20 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("serverinfo")
     .setDescription("Display essential server information")
-    .setContexts(InteractionContextType.Guild),
+    .setContexts(InteractionContextType.Guild)
+    .addBooleanOption((option) =>
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
+    ),
   /**
    *
    * @param {import('discord.js').Interaction} interaction
    */
   async execute(interaction) {
     try {
+      const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
       const response = {
         serverName: interaction.guild.name,
         serverId: interaction.guildId,
@@ -107,7 +114,7 @@ module.exports = {
         });
       await interaction.reply({
         embeds: [serverEmbed],
-        flags: MessageFlags.Ephemeral,
+        ephemeral: ephemeral,
       });
     } catch (error) {
       console.error("Unexpected error during /serverinfo", error);

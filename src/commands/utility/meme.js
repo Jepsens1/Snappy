@@ -9,14 +9,22 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("meme")
     .setDescription("Send a random meme to the channel")
-    .setContexts(InteractionContextType.Guild),
+    .setContexts(InteractionContextType.Guild)
+
+    .addBooleanOption((option) =>
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
+    ),
 
   /**
    * @param {import("discord.js").Interaction} interaction
    */
   async execute(interaction) {
     try {
-      await interaction.deferReply();
+      const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
+      await interaction.deferReply({ ephemeral: ephemeral });
       const meme = await fetchRandomMeme();
 
       const embed = new EmbedBuilder()

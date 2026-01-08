@@ -16,6 +16,12 @@ module.exports = {
             .setName("steamid")
             .setDescription("64-bit steamID or custom ID")
             .setRequired(true),
+        )
+        .addBooleanOption((option) =>
+          option
+            .setName("ephemeral")
+            .setDescription("Hide message response (only visible to you)")
+            .setRequired(false),
         ),
     )
     .addSubcommand((subcommand) =>
@@ -27,6 +33,13 @@ module.exports = {
             .setName("nickname")
             .setDescription("Faceit nickname")
             .setRequired(true),
+        )
+
+        .addBooleanOption((option) =>
+          option
+            .setName("ephemeral")
+            .setDescription("Hide message response (only visible to you)")
+            .setRequired(false),
         ),
     )
     .setContexts(InteractionContextType.Guild),
@@ -36,8 +49,9 @@ module.exports = {
    */
   async execute(interaction) {
     try {
-      await interaction.deferReply();
+      const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
       const subcommand = interaction.options.getSubcommand();
+      await interaction.deferReply({ ephemeral: ephemeral });
       if (subcommand === "steamprofile") {
         const steamId = interaction.options.getString("steamid");
         const steamService = new SteamService();

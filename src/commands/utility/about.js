@@ -11,13 +11,20 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("about")
     .setDescription("Shows bot-version, server count, developer")
-    .setContexts(InteractionContextType.Guild),
+    .setContexts(InteractionContextType.Guild)
+    .addBooleanOption((option) =>
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
+    ),
   /**
    *
    * @param {import('discord.js').Interaction} interaction
    */
   async execute(interaction) {
     try {
+      const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
       const serverCount = (await interaction.client.guilds.fetch()).size;
       const uptime = formatTime(interaction.client.uptime);
       const developerAccount =
@@ -40,7 +47,7 @@ module.exports = {
         .setFooter({ text: `ID: ${interaction.client.user.id}` });
       await interaction.reply({
         embeds: [aboutEmbed],
-        flags: MessageFlags.Ephemeral,
+        ephemeral: ephemeral,
       });
     } catch (error) {
       console.error("Unexpected error during /about", error);

@@ -30,6 +30,12 @@ module.exports = {
           { name: "4096px", value: 4096 },
         ),
     )
+    .addBooleanOption((option) =>
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
+    )
     .setContexts(InteractionContextType.Guild)
     .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
   /**
@@ -37,6 +43,7 @@ module.exports = {
    * @param {import('discord.js').Interaction} interaction
    */
   async execute(interaction) {
+    const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
     const member = interaction.options.getMember("member");
     const sizeInPixels = interaction.options.getInteger("size") || 1024;
     try {
@@ -47,7 +54,7 @@ module.exports = {
           iconURL: member.displayAvatarURL(),
         })
         .setImage(member.displayAvatarURL({ size: sizeInPixels }));
-      await interaction.reply({ embeds: [avatarEmbed] });
+      await interaction.reply({ embeds: [avatarEmbed], ephemeral: ephemeral });
     } catch (error) {
       console.error("Unexpected error during /avatar", error);
       await interaction.reply({

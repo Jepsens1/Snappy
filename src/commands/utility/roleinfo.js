@@ -11,12 +11,19 @@ module.exports = {
     .addRoleOption((option) =>
       option.setName("role").setDescription("role to lookup").setRequired(true),
     )
+    .addBooleanOption((option) =>
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
+    )
     .setContexts(InteractionContextType.Guild),
   /**
    * @param {import('discord.js').Interaction} interaction
    */
   async execute(interaction) {
-    await interaction.deferReply();
+    const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
+    await interaction.deferReply({ ephemeral: ephemeral });
 
     const role = interaction.options.getRole("role");
     if (role.toString() == "@everyone") {

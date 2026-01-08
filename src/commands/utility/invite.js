@@ -53,7 +53,10 @@ module.exports = {
         .setRequired(true),
     )
     .addBooleanOption((option) =>
-      option.setName("ephemeral").setDescription("Should all see this message"),
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.CreateInstantInvite)
     .setContexts(InteractionContextType.Guild),
@@ -68,7 +71,7 @@ module.exports = {
       interaction.options.getString("maxuser"),
     );
     const isTemp = interaction.options.getBoolean("temp");
-    const ephemeral = interaction.options.getBoolean("ephemeral") ?? true;
+    const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
     try {
       const expireSeconds = Number(expire);
       const invite = await interaction.guild.invites.create(channel, {
@@ -101,14 +104,10 @@ module.exports = {
           { name: "Invite Link", value: invite.toString() },
         )
         .setTimestamp();
-      if (ephemeral) {
-        await interaction.reply({
-          embeds: [inviteEmbed],
-          flags: MessageFlags.Ephemeral,
-        });
-      } else {
-        await interaction.reply({ embeds: [inviteEmbed] });
-      }
+      await interaction.reply({
+        embeds: [inviteEmbed],
+        ephemeral: ephemeral,
+      });
     } catch (error) {
       console.error("Unexpected error during /invite", error);
       await interaction.reply({

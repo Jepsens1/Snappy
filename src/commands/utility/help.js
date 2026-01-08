@@ -9,7 +9,6 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("help")
     .setDescription("list all availiable commands"),
-
   /**
    * @param {import("discord.js").Interaction} interaction
    */

@@ -12,6 +12,12 @@ module.exports = {
     .addUserOption((option) =>
       option.setName("user").setDescription("user to lookup").setRequired(true),
     )
+    .addBooleanOption((option) =>
+      option
+        .setName("ephemeral")
+        .setDescription("Hide message response (only visible to you)")
+        .setRequired(false),
+    )
     .setContexts(InteractionContextType.Guild),
   /**
    *
@@ -19,6 +25,7 @@ module.exports = {
    */
   async execute(interaction) {
     try {
+      const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
       const targetUser = interaction.options.getMember("user");
       const response = {
         username: targetUser.user.username,
@@ -103,7 +110,7 @@ module.exports = {
         .setFooter({ text: `ID: ${response.id}` });
       await interaction.reply({
         embeds: [userEmbed],
-        flags: MessageFlags.Ephemeral,
+        ephemeral: ephemeral,
       });
     } catch (error) {
       console.error("Unexpected error during /userinfo", error);
