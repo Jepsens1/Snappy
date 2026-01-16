@@ -1,9 +1,12 @@
 const FaceitClient = require("../../utils/CS2/faceit-api-client");
 const FaceitProfile = require("../../models/CS2/faceit-schema");
+const StatsCacheService = require("../stats-cache-service");
 class FaceitService {
   constructor() {
     this.faceitClient = new FaceitClient();
-    this.cacheTimer = 10;
+    this.redisTTL = 600; // 10 minutes
+    this.dbRefresh = 3600; // 1 hour
+    this.platform = "faceit";
   }
 
   //#region Map Functions
@@ -108,17 +111,37 @@ class FaceitService {
   /**
    * Get latest Faceit data available
    * @param {String} nickname
-   * @returns {Promise<FaceitProfile>}
+   * @returns {Promise<FaceitProfile | any>}
    */
   async getFaceitProfile(nickname) {
     try {
+      const cached = await StatsCacheService.getPlayerStats(
+        this.platform,
+        nickname,
+      );
+      if (cached) {
+        console.log(`[Faceitservice][Cache] Redis Cache hit: ${nickname}`);
+        return cached;
+      }
       let faceitProfile = await this._findFaceitProfileInDb(nickname);
       if (faceitProfile) {
         faceitProfile = await this._refreshFaceitData(faceitProfile);
+        await StatsCacheService.setPlayerStats(
+          this.platform,
+          nickname,
+          faceitProfile,
+          this.redisTTL,
+        );
         return faceitProfile;
       }
       console.log(`[FaceitService][Faceit] New Faceit Profile: ${nickname}`);
       faceitProfile = await this._createFaceitProfile(nickname);
+      await StatsCacheService.setPlayerStats(
+        this.platform,
+        nickname,
+        faceitProfile,
+        this.redisTTL,
+      );
       return faceitProfile;
     } catch (error) {
       this._handleFaceitError(error, nickname);
@@ -139,10 +162,10 @@ class FaceitService {
    * @returns {Promise<FaceitProfile>}
    */
   async _refreshFaceitData(faceitProfile) {
-    if (Date.now() - faceitProfile.updatedAt < this.cacheTimer * 60 * 1000) {
+    if (Date.now() - faceitProfile.updatedAt < this.dbRefresh * 1000) {
       // No updates
       console.log(
-        `[FaceitService][Cache] Latest data already exist ${faceitProfile.nickname}`,
+        `[FaceitService][DB] Data still fresh ${faceitProfile.nickname}`,
       );
       return faceitProfile;
     }

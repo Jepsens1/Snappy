@@ -26,6 +26,7 @@
     "chrono-node": "^2.9.0",
     "cron": "^4.3.4",
     "discord.js": "^14.23.2",
-    "mongoose": "^8.19.3"
+    "mongoose": "^8.19.3",
+    "redis": "^5.10.0"
   }
 }

@@ -1,11 +1,14 @@
 const RiotApiClient = require("../../utils/LoL/riot-api-client");
 const Summoner = require("../../models/LoL/summoner-schema");
 const LeagueOfLegends = require("../../models/LoL/league-of-legends-schema");
+const StatsCacheService = require("../stats-cache-service");
 
 class LeagueService {
   constructor() {
     this.riotClient = new RiotApiClient();
-    this.cacheTimer = 10;
+    this.redisTTL = 300; // 5 minutes
+    this.dbRefresh = 1800; // 30 minutes
+    this.platform = "lol";
   }
 
   //#region Map functions
@@ -165,13 +168,34 @@ class LeagueService {
    */
   async getSummonerFullStats(summonerName, tag) {
     try {
+      const cached = await StatsCacheService.getPlayerStats(
+        this.platform,
+        `${summonerName}#${tag}`,
+      );
+
+      if (cached) {
+        console.log(`[LeagueService][Cache] Redis Cache hit: ${summonerName}`);
+        return cached;
+      }
       let summoner = await this._findSummonerInDb(summonerName, tag);
       if (summoner) {
         summoner = await this._refreshSummonerData(summoner);
+        await StatsCacheService.setPlayerStats(
+          this.platform,
+          `${summonerName}#${tag}`,
+          summoner,
+          this.redisTTL,
+        );
         return summoner;
       }
       console.log(`[LeagueService][Riot] New Summoner: ${summonerName}#${tag}`);
       summoner = await this._createSummonerFromRiot(summonerName, tag);
+      await StatsCacheService.setPlayerStats(
+        this.platform,
+        `${summonerName}#${tag}`,
+        summoner,
+        this.redisTTL,
+      );
       return summoner;
     } catch (error) {
       this._handleRiotError(error, summonerName, tag);
@@ -322,7 +346,7 @@ class LeagueService {
    */
   _checkDataFreshness(summoner) {
     const olderThan10Min = (date) =>
-      !date || Date.now() - date.getTime() > this.cacheTimer * 60 * 1000;
+      !date || Date.now() - date.getTime() > this.dbRefresh * 1000;
     return {
       needsSummoner: olderThan10Min(summoner.lastBasicUpdate),
       needsMatchHistory: olderThan10Min(summoner.lastMatchHistoryUpdate),
@@ -349,7 +373,7 @@ class LeagueService {
     ) {
       // No updates
       console.log(
-        `[LeagueService][Cache] Latest data already exist ${summoner.gameName}#${summoner.tagLine}`,
+        `[LeagueService][DB] Data still fresh ${summoner.gameName}#${summoner.tagLine}`,
       );
       return summoner;
     }

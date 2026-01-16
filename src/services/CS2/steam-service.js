@@ -1,9 +1,12 @@
 const SteamClient = require("../../utils/CS2/steam-api-client");
 const SteamProfile = require("../../models/CS2/steam-schema");
+const StatsCacheService = require("../stats-cache-service");
 class SteamService {
   constructor() {
     this.steamClient = new SteamClient();
-    this.cacheTimer = 5;
+    this.redisTTL = 900; // 15 minutes
+    this.dbRefresh = 7200; // 2 hours
+    this.platform = "steam";
   }
 
   //#region Map Functions
@@ -108,13 +111,34 @@ class SteamService {
    */
   async getSteamProfile(steamId) {
     try {
+      const cached = await StatsCacheService.getPlayerStats(
+        this.platform,
+        steamId,
+      );
+
+      if (cached) {
+        console.log(`[SteamService][Cache] Redis Cache hit: ${steamId}`);
+        return cached;
+      }
       let steamProfile = await this._findSteamProfileInDb(steamId);
       if (steamProfile) {
         steamProfile = await this._refreshSteamData(steamProfile);
+        await StatsCacheService.setPlayerStats(
+          this.platform,
+          steamId,
+          steamProfile,
+          this.redisTTL,
+        );
         return steamProfile;
       }
       console.log(`[SteamService][Steam] New Steam Profile: ${steamId}`);
       steamProfile = await this._createSteamProfile(steamId);
+      await StatsCacheService.setPlayerStats(
+        this.platform,
+        steamId,
+        steamProfile,
+        this.redisTTL,
+      );
       return steamProfile;
     } catch (error) {
       this._handleSteamError(error, steamId);
@@ -141,10 +165,10 @@ class SteamService {
    * @returns {Promise<SteamProfile>}
    */
   async _refreshSteamData(steamProfile) {
-    if (Date.now() - steamProfile.updatedAt < this.cacheTimer * 60 * 1000) {
+    if (Date.now() - steamProfile.updatedAt < this.dbRefresh * 1000) {
       // No updates
       console.log(
-        `[SteamService][Cache] Latest data already exist ${steamProfile.personaName}`,
+        `[SteamService][DB] Data still fresh ${steamProfile.personaName}`,
       );
       return steamProfile;
     }
