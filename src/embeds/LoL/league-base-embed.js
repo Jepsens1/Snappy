@@ -13,7 +13,7 @@ function createBaseEmbed(player) {
       `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${player.profileIconId}.jpg`,
     )
     .setDescription(
-      `**Data fetched: <t:${Math.floor(player.updatedAt / 1000)}:R>**`,
+      `**Data fetched: <t:${Math.floor(new Date(player.updatedAt) / 1000)}:R>**`,
     )
     .addFields({
       name: "Last Games",

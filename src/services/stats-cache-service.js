@@ -3,7 +3,7 @@ const getRedisClient = require("../utils/redis");
 class StatsCacheService {
   static async getPlayerStats(platform, playerId) {
     const redis = await getRedisClient();
-    const key = `stats:${platform}:${playerId}`;
+    const key = `stats:${platform}:${playerId}`.toLowerCase();
     const cached = await redis.get(key);
 
     if (cached) {
@@ -14,7 +14,7 @@ class StatsCacheService {
 
   static async setPlayerStats(platform, playerId, data, ttl) {
     const redis = await getRedisClient();
-    const key = `stats:${platform}:${playerId}`;
+    const key = `stats:${platform}:${playerId}`.toLowerCase();
     await redis.set(key, JSON.stringify(data), { EX: ttl });
   }
 }

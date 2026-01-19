@@ -27,7 +27,7 @@ function createSteamEmbed(player) {
     .setThumbnail(player.avatarUrl)
     .setURL(player.profileUrl)
     .setDescription(
-      `**Last fetched: <t:${Math.floor(player.updatedAt / 1000)}:R>**`,
+      `**Last fetched: <t:${Math.floor(new Date(player.updatedAt) / 1000)}:R>**`,
     )
     .addFields(
       { name: "Name", value: `${player.personaName}`, inline: true },

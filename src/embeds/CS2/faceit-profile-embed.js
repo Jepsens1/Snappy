@@ -19,7 +19,7 @@ function createFaceitEmbed(player) {
     .setThumbnail(player.avatar)
     .setURL(player.faceit_url)
     .setDescription(
-      `**Last fetched: <t:${Math.floor(player.updatedAt / 1000)}:R>**`,
+      `**Last fetched: <t:${Math.floor(new Date(player.updatedAt) / 1000)}:R>**`,
     )
 
     .addFields(
