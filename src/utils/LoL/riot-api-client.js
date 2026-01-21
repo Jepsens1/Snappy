@@ -92,7 +92,7 @@ class RiotApiClient extends ApiClient {
    */
   async getMatchIdsByPuuid(puuid) {
     const endpoint = `${this.continental}/lol/match/v5/matches/by-puuid/${puuid}/ids`;
-    return await this.get(endpoint, { start: 0, count: 20 });
+    return await this.get(endpoint, { start: 0, count: 10 });
   }
 
   /**
