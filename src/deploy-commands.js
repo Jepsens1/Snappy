@@ -2,7 +2,9 @@ const { REST, Routes } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
 
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
