@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
-    "deploy-commands": "node --env-file=.env src/deploy-commands.js",
-    "dev": "nodemon --env-file=.env src/index.js",
-    "start": "node --env-file=.env src/index.js",
+    "deploy-commands": "node src/deploy-commands.js",
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "start:prod": "npm run deploy-commands && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -26,6 +27,7 @@
     "chrono-node": "^2.9.0",
     "cron": "^4.3.4",
     "discord.js": "^14.23.2",
+    "dotenv": "^17.2.3",
     "mongoose": "^8.19.3",
     "redis": "^5.10.0"
   }
