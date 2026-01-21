@@ -20,6 +20,24 @@ services:
     networks:
       - app-network
 
+  mongo:
+    image: mongo:noble
+    container_name: snappy-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_DATABASE: snappy
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
   redis:
     image: redis:latest
     container_name: redis-cache
@@ -33,6 +51,7 @@ services:
 
 volumes:
   redis-data:
+  mongo-data:
 
 networks:
   app-network:
