@@ -18,7 +18,6 @@ const matchDataSchema = new Schema(
     matchId: {
       type: String,
       required: true,
-      unique: true,
     },
     queueId: {
       type: Number,
